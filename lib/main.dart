@@ -2,6 +2,7 @@ import 'package:ap_news/auth/login/view/login_view.dart';
 import 'package:ap_news/modules/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/theme_controller.dart';

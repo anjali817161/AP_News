@@ -1,3 +1,4 @@
+import 'package:ap_news/modules/shorts/view/shorts_view.dart';
 import 'package:flutter/material.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
@@ -12,60 +13,76 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 85,
-      decoration: BoxDecoration(color: Colors.transparent),
-      child: Stack(
-        children: [
-          // Curved Background
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 75,
-              decoration: BoxDecoration(
-                color: Colors.red[900],
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(35),
-                  topRight: Radius.circular(35),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, -5),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Container(
+        height: 70,
+        decoration: BoxDecoration(color: Colors.transparent),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Curved Background
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.red[900],
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(35),
+                    topRight: Radius.circular(35),
                   ),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Navigation Items
-          Positioned(
-            bottom: 12,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(Icons.home, 'Home', 0),
-                _buildNavItem(Icons.school, 'Learning', 1),
-
-                // Middle Circular Search Button
-                _buildSearchButton(),
-
-                _buildNavItem(Icons.settings, 'Settings', 3),
-                _buildNavItem(Icons.flight, 'Jets', 4),
-              ],
+            // Navigation Items
+            Positioned(
+              bottom: 8,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildNavItem(Icons.home, 'Home', 0, context),
+                    _buildNavItem(Icons.school, 'Learning', 1, context),
+                    _buildNavItem(Icons.menu_book, 'Read', 3, context),
+                    _buildNavItem(Icons.settings, 'Settings', 4, context),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+
+            // Middle Circular Search Button - Half on navbar, half outside
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: Center(child: _buildSearchButton(context)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, int index) {
+  Widget _buildNavItem(
+    IconData icon,
+    String label,
+    int index,
+    BuildContext context,
+  ) {
     final isSelected = index == currentIndex;
     return GestureDetector(
       onTap: () => onTap(index),
@@ -75,7 +92,7 @@ class CustomBottomNavBar extends StatelessWidget {
           Icon(
             icon,
             color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
-            size: 24,
+            size: 26,
           ),
           const SizedBox(height: 4),
           Text(
@@ -91,12 +108,22 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchButton() {
+  Widget _buildSearchButton(BuildContext context) {
     return GestureDetector(
-      onTap: () => onTap(2),
+      onTap: () {
+        // If parent wants to handle index 2 as well, still call onTap(2).
+        try {
+          onTap(2);
+        } catch (_) {}
+        // Navigate to ShortsPage
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ShortsPage()),
+        );
+      },
       child: Container(
-        width: 60,
-        height: 60,
+        width: 50,
+        height: 50,
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
@@ -107,19 +134,18 @@ class CustomBottomNavBar extends StatelessWidget {
               offset: const Offset(0, 4),
             ),
           ],
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.red[800]!, Colors.red[900]!],
-          ),
         ),
         child: Container(
           margin: const EdgeInsets.all(2),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.red[800]!, Colors.red[900]!],
+            ),
           ),
-          child: Icon(Icons.search, color: Colors.red[800], size: 28),
+          child: const Icon(Icons.play_arrow, color: Colors.white, size: 28),
         ),
       ),
     );
