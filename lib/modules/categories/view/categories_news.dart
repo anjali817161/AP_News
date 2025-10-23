@@ -1,7 +1,9 @@
 // lib/modules/home/category_news_page.dart
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart'; // for Clipboard
+import 'package:ap_news/modules/news_details/view/news_details.dart';
 
 class CategoryNewsPage extends StatefulWidget {
   final String category;
@@ -392,17 +394,30 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                     // Read more button (kept lightweight)
                     TextButton(
                       onPressed: () {
-                        // navigate to article detail - replace with your detail page navigation
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Open article — ${item['title'] ?? ''}',
-                            ),
-                          ),
+                        // Navigate to NewsDetailPage
+                        Get.to(
+                          () => const NewsDetailPage(),
+                          arguments: {'mode': 'article', 'item': item},
                         );
                       },
-                      style: TextButton.styleFrom(foregroundColor: primaryRed),
-                      child: const Text('Read More'),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        backgroundColor: Colors.red[50],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      child: Text(
+                        'Read More',
+                        style: TextStyle(
+                          color: Colors.red[800],
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),

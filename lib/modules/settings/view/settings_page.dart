@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import '../../bottom_navbar/bottom_navbar.dart';
 import '../../home/home_page.dart';
 import '../../learning/view/learning_page.dart';
+import '../../news_details/view/news_details.dart';
 import '../../read/view/read_page.dart';
+import '../../sports/view/cricket_view.dart';
 
 import '../controller/settings_controller.dart';
 import '../model/news_model.dart';
@@ -46,8 +48,11 @@ class _SettingsPageState extends State<SettingsPage> {
           MaterialPageRoute(builder: (context) => const ReadPage()),
         );
         break;
-      case 4: // Settings
-        // Already on settings page
+      case 4: // Sports
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CricketPage()),
+        );
         break;
     }
   }
@@ -286,6 +291,33 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                       const Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          // Navigate to NewsDetailPage
+                          Get.to(
+                            () => const NewsDetailPage(),
+                            arguments: {'mode': 'article', 'item': news},
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          backgroundColor: Colors.red[50],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        child: Text(
+                          'Read More',
+                          style: TextStyle(
+                            color: Colors.red[800],
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                       IconButton(
                         icon: Icon(
                           news.isSaved ? Icons.bookmark : Icons.bookmark_border,

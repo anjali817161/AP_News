@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import '../../bottom_navbar/bottom_navbar.dart';
 import '../../home/home_page.dart';
+import '../../news_details/view/news_details.dart';
 import '../../read/view/read_page.dart';
 import '../../settings/view/settings_page.dart';
+import '../../sports/view/cricket_view.dart';
+import '../../../controllers/theme_controller.dart';
 
 import '../controller/learning_controller.dart';
 import '../model/news_model.dart';
@@ -37,16 +41,16 @@ class _LearningPageState extends State<LearningPage> {
         // Show search dialog or navigate to search page
         _showSearchDialog();
         break;
-      case 3: // Settings
+      case 3: // Read
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const SettingsPage()),
+          MaterialPageRoute(builder: (context) => const ReadPage()),
         );
         break;
-      case 4: // Settings
-        Navigator.pushReplacement(
+      case 4: // Sports
+        Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SettingsPage()),
+          MaterialPageRoute(builder: (context) => const CricketPage()),
         );
         break;
     }
@@ -168,9 +172,11 @@ class _LearningPageState extends State<LearningPage> {
   @override
   Widget build(BuildContext context) {
     final LearningController controller = Get.put(LearningController());
+    final themeController = Provider.of<ThemeController>(context);
+    final isDarkTheme = themeController.isDarkMode;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: isDarkTheme ? Colors.grey[900] : Colors.grey[50],
       appBar: AppBar(
         backgroundColor: Colors.red[800],
         title: const Text(
@@ -201,10 +207,16 @@ class _LearningPageState extends State<LearningPage> {
   }
 
   Widget _buildNewsCard(News news, LearningController controller) {
+    final themeController = Provider.of<ThemeController>(
+      context,
+      listen: false,
+    );
+    final isDarkTheme = themeController.isDarkMode;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkTheme ? Colors.grey[800] : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -257,10 +269,10 @@ class _LearningPageState extends State<LearningPage> {
                   const SizedBox(height: 10),
                   Text(
                     news.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: isDarkTheme ? Colors.white : Colors.black87,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -268,7 +280,10 @@ class _LearningPageState extends State<LearningPage> {
                   const SizedBox(height: 6),
                   Text(
                     news.description,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -278,18 +293,54 @@ class _LearningPageState extends State<LearningPage> {
                       Icon(
                         Icons.access_time,
                         size: 14,
-                        color: Colors.grey[500],
+                        color: isDarkTheme
+                            ? Colors.grey[300]
+                            : Colors.grey[500],
                       ),
                       const SizedBox(width: 4),
                       Text(
                         news.timeAgo,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDarkTheme
+                              ? Colors.grey[300]
+                              : Colors.grey[500],
+                        ),
                       ),
                       const Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          // Navigate to NewsDetailPage
+                          Get.to(
+                            () => const NewsDetailPage(),
+                            arguments: {'mode': 'article', 'item': news},
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          backgroundColor: Colors.red[50],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        child: Text(
+                          'Read More',
+                          style: TextStyle(
+                            color: Colors.red[800],
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                       IconButton(
                         icon: Icon(
                           news.isSaved ? Icons.bookmark : Icons.bookmark_border,
-                          color: news.isSaved ? Colors.red : Colors.grey,
+                          color: news.isSaved
+                              ? Colors.red
+                              : (isDarkTheme ? Colors.grey[300] : Colors.grey),
                           size: 20,
                         ),
                         onPressed: () => controller.toggleSave(news),
@@ -297,7 +348,9 @@ class _LearningPageState extends State<LearningPage> {
                       IconButton(
                         icon: Icon(
                           Icons.share,
-                          color: Colors.grey[600],
+                          color: isDarkTheme
+                              ? Colors.grey[300]
+                              : Colors.grey[600],
                           size: 20,
                         ),
                         onPressed: () => controller.shareNews(news),

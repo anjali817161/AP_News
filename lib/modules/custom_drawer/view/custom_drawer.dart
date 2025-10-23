@@ -1,12 +1,18 @@
+// lib/modules/custom_drawer/view/custom_drawer.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../controllers/theme_controller.dart';
+import '../../../controllers/language_controller.dart';
 
 class CustomAppDrawer extends StatelessWidget {
-  final bool isDarkTheme;
-  final ValueChanged<bool> onThemeChanged;
+  // Optional externally-provided state & callbacks (keeps backward compatibility)
+  final bool? isDarkTheme;
+  final ValueChanged<bool>? onThemeChanged;
 
-  final bool isHindi;
-  final ValueChanged<bool> onLanguageChanged;
+  final bool? isHindi;
+  final ValueChanged<bool>? onLanguageChanged;
 
+  // Required navigation callbacks
   final VoidCallback onProfile;
   final VoidCallback onPrivacyPolicy;
   final VoidCallback onTerms;
@@ -14,10 +20,12 @@ class CustomAppDrawer extends StatelessWidget {
 
   const CustomAppDrawer({
     Key? key,
-    required this.isDarkTheme,
-    required this.onThemeChanged,
-    required this.isHindi,
-    required this.onLanguageChanged,
+    // optional override values
+    this.isDarkTheme,
+    this.onThemeChanged,
+    this.isHindi,
+    this.onLanguageChanged,
+    // required callbacks
     required this.onProfile,
     required this.onPrivacyPolicy,
     required this.onTerms,
@@ -26,6 +34,13 @@ class CustomAppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeController = Provider.of<ThemeController>(context);
+    final languageController = Provider.of<LanguageController>(context);
+
+    // Determine effective values: prefer constructor-provided values, otherwise provider values
+    final effectiveIsDarkTheme = isDarkTheme ?? themeController.isDarkMode;
+    final effectiveIsHindi = isHindi ?? (languageController.currentLanguage == 'hi');
+
     // Colors tuned to your red/white theme
     final primaryRed = Colors.red[800]!;
     final lightBg = Colors.white;
@@ -34,24 +49,18 @@ class CustomAppDrawer extends StatelessWidget {
     return Drawer(
       child: MediaQuery.removePadding(
         context: context,
-        removeTop:
-            true, // <- removes the top safe-area padding so header sits flush
+        removeTop: true, // header sits flush to top
         child: Container(
-          color: isDarkTheme ? darkBg : lightBg,
+          color: effectiveIsDarkTheme ? darkBg : lightBg,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header (now flush to the top)
+              // Header (flush to top)
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 40,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 40),
                 decoration: BoxDecoration(
                   color: primaryRed,
-                  borderRadius: const BorderRadius.only(
-                    bottomRight: Radius.circular(18),
-                  ),
+                  borderRadius: const BorderRadius.only(bottomRight: Radius.circular(18)),
                 ),
                 child: Row(
                   children: [
@@ -73,7 +82,7 @@ class CustomAppDrawer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isHindi ? 'नमस्ते, उपयोगकर्ता' : 'Hello, User',
+                            effectiveIsHindi ? 'नमस्ते, उपयोगकर्ता' : 'Hello, User',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -82,7 +91,7 @@ class CustomAppDrawer extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            isHindi ? '@username' : '@username',
+                            effectiveIsHindi ? '@username' : '@username',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.9),
                               fontSize: 13,
@@ -97,59 +106,47 @@ class CustomAppDrawer extends StatelessWidget {
 
               // Toggles (language + theme)
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
                 child: Column(
                   children: [
                     // Language toggle row
                     Card(
                       elevation: 0,
-                      color: isDarkTheme ? Colors.grey[850] : Colors.white,
+                      color: effectiveIsDarkTheme ? Colors.grey[850] : Colors.white,
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                         leading: Icon(Icons.language, color: primaryRed),
                         title: Text(
-                          isHindi ? 'हिंदी' : 'Language',
+                          effectiveIsHindi ? 'हिंदी' : 'Language',
                           style: TextStyle(
-                            color: isDarkTheme ? Colors.white : Colors.black87,
+                            color: effectiveIsDarkTheme ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         subtitle: Text(
-                          isHindi
-                              ? 'हिंदी में बदलें'
-                              : 'Switch between English & Hindi',
+                          effectiveIsHindi ? 'हिंदी में बदलें' : 'Switch between English & Hindi',
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDarkTheme
-                                ? Colors.white70
-                                : Colors.black54,
+                            color: effectiveIsDarkTheme ? Colors.white70 : Colors.black54,
                           ),
                         ),
                         trailing: ToggleButtons(
                           borderRadius: BorderRadius.circular(12),
-                          constraints: const BoxConstraints(
-                            minWidth: 40,
-                            minHeight: 32,
-                          ),
-                          isSelected: [!isHindi, isHindi],
+                          constraints: const BoxConstraints(minWidth: 40, minHeight: 32),
+                          isSelected: [!effectiveIsHindi, effectiveIsHindi],
                           onPressed: (index) {
-                            // index 0 -> English, 1 -> Hindi
-                            onLanguageChanged(index == 1);
+                            final wantHindi = index == 1;
+                            // If callback provided by caller, prefer it
+                            if (onLanguageChanged != null) {
+                              onLanguageChanged!(wantHindi);
+                            } else {
+                              // otherwise update provider
+                              languageController.changeLanguage(wantHindi ? 'hi' : 'en');
+                            }
                           },
                           children: const [
-                            Text(
-                              'EN',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'HI',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                            Text('EN', style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('HI', style: TextStyle(fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -160,36 +157,38 @@ class CustomAppDrawer extends StatelessWidget {
                     // Theme toggle row
                     Card(
                       elevation: 0,
-                      color: isDarkTheme ? Colors.grey[850] : Colors.white,
+                      color: effectiveIsDarkTheme ? Colors.grey[850] : Colors.white,
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                         leading: Icon(Icons.brightness_6, color: primaryRed),
                         title: Text(
-                          isHindi ? 'थीम' : 'Theme',
+                          effectiveIsHindi ? 'थीम' : 'Theme',
                           style: TextStyle(
-                            color: isDarkTheme ? Colors.white : Colors.black87,
+                            color: effectiveIsDarkTheme ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         subtitle: Text(
-                          isHindi
-                              ? (isDarkTheme ? 'डार्क' : 'लाइट')
-                              : (isDarkTheme ? 'Dark' : 'Light'),
+                          effectiveIsHindi ? (effectiveIsDarkTheme ? 'डार्क' : 'लाइट') : (effectiveIsDarkTheme ? 'Dark' : 'Light'),
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDarkTheme
-                                ? Colors.white70
-                                : Colors.black54,
+                            color: effectiveIsDarkTheme ? Colors.white70 : Colors.black54,
                           ),
                         ),
                         trailing: Switch(
-                          value: isDarkTheme,
+                          value: effectiveIsDarkTheme,
                           activeColor: lightBg,
                           activeTrackColor: primaryRed.withOpacity(0.7),
                           inactiveTrackColor: Colors.grey[300],
-                          onChanged: onThemeChanged,
+                          onChanged: (value) {
+                            // Prefer caller-provided callback if available
+                            if (onThemeChanged != null) {
+                              onThemeChanged!(value);
+                            } else {
+                              // toggles provider state
+                              themeController.toggleTheme();
+                            }
+                          },
                         ),
                       ),
                     ),
@@ -208,30 +207,24 @@ class CustomAppDrawer extends StatelessWidget {
                     ListTile(
                       leading: Icon(Icons.person, color: primaryRed),
                       title: Text(
-                        isHindi ? 'प्रोफ़ाइल' : 'Profile',
-                        style: TextStyle(
-                          color: isDarkTheme ? Colors.white : Colors.black87,
-                        ),
+                        effectiveIsHindi ? 'प्रोफ़ाइल' : 'Profile',
+                        style: TextStyle(color: effectiveIsDarkTheme ? Colors.white : Colors.black87),
                       ),
                       onTap: onProfile,
                     ),
                     ListTile(
                       leading: Icon(Icons.lock, color: primaryRed),
                       title: Text(
-                        isHindi ? 'प्राइवेसी पॉलिसी' : 'Privacy Policy',
-                        style: TextStyle(
-                          color: isDarkTheme ? Colors.white : Colors.black87,
-                        ),
+                        effectiveIsHindi ? 'प्राइवेसी पॉलिसी' : 'Privacy Policy',
+                        style: TextStyle(color: effectiveIsDarkTheme ? Colors.white : Colors.black87),
                       ),
                       onTap: onPrivacyPolicy,
                     ),
                     ListTile(
                       leading: Icon(Icons.description, color: primaryRed),
                       title: Text(
-                        isHindi ? 'नियम व शर्तें' : 'Terms & Conditions',
-                        style: TextStyle(
-                          color: isDarkTheme ? Colors.white : Colors.black87,
-                        ),
+                        effectiveIsHindi ? 'नियम व शर्तें' : 'Terms & Conditions',
+                        style: TextStyle(color: effectiveIsDarkTheme ? Colors.white : Colors.black87),
                       ),
                       onTap: onTerms,
                     ),
@@ -243,15 +236,11 @@ class CustomAppDrawer extends StatelessWidget {
                     ListTile(
                       leading: Icon(Icons.settings, color: primaryRed),
                       title: Text(
-                        isHindi ? 'सेटिंग्स' : 'Settings',
-                        style: TextStyle(
-                          color: isDarkTheme ? Colors.white : Colors.black87,
-                        ),
+                        effectiveIsHindi ? 'सेटिंग्स' : 'Settings',
+                        style: TextStyle(color: effectiveIsDarkTheme ? Colors.white : Colors.black87),
                       ),
                       onTap: () {
-                        // You can link to app settings page
                         Navigator.pop(context);
-                        // If needed call a callback
                       },
                     ),
 
@@ -262,11 +251,8 @@ class CustomAppDrawer extends StatelessWidget {
                     ListTile(
                       leading: Icon(Icons.logout, color: primaryRed),
                       title: Text(
-                        isHindi ? 'लॉग आउट' : 'Logout',
-                        style: TextStyle(
-                          color: isDarkTheme ? Colors.white : Colors.black87,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        effectiveIsHindi ? 'लॉग आउट' : 'Logout',
+                        style: TextStyle(color: effectiveIsDarkTheme ? Colors.white : Colors.black87, fontWeight: FontWeight.w600),
                       ),
                       onTap: onLogout,
                     ),
@@ -276,17 +262,11 @@ class CustomAppDrawer extends StatelessWidget {
 
               // Optional footer
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
                   'Version 1.0.0',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: isDarkTheme ? Colors.white38 : Colors.black45,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: effectiveIsDarkTheme ? Colors.white38 : Colors.black45, fontSize: 12),
                 ),
               ),
             ],

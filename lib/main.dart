@@ -1,4 +1,4 @@
-import 'package:ap_news/auth/login/view/login_view.dart';
+import 'package:ap_news/auth/login_signup/view/login_view.dart';
 import 'package:ap_news/modules/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,7 +8,6 @@ import 'controllers/auth_controller.dart';
 import 'controllers/theme_controller.dart';
 import 'controllers/language_controller.dart';
 import 'utils/localization.dart';
-import 'views/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,12 +31,24 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer2<ThemeController, LanguageController>(
         builder: (context, themeController, languageController, child) {
-          return MaterialApp(
+          return GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'AP News',
             theme: themeController.isDarkMode
-                ? ThemeData.dark()
-                : ThemeData.light(),
+                ? ThemeData.dark().copyWith(
+                    primaryColor: Colors.red[800],
+                    colorScheme: ColorScheme.dark(
+                      primary: Colors.red[800]!,
+                      secondary: Colors.red[600]!,
+                    ),
+                  )
+                : ThemeData.light().copyWith(
+                    primaryColor: Colors.red[800],
+                    colorScheme: ColorScheme.light(
+                      primary: Colors.red[800]!,
+                      secondary: Colors.red[600]!,
+                    ),
+                  ),
             locale: Locale(languageController.currentLanguage),
             localizationsDelegates: const [
               AppLocalizations.delegate,
@@ -46,11 +57,7 @@ class MyApp extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [Locale('en', ''), Locale('hi', '')],
-            home: HomePage(),
-
-            //  authController.isAuthenticated
-            //     ? const HomePage()
-            //     : const LoginPage(),
+            home: LoginSignupPage(),
           );
         },
       ),
