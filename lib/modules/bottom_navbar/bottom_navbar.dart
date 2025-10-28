@@ -56,7 +56,7 @@ class CustomBottomNavBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildNavItem(Icons.home, 'Home', 0, context),
-                    _buildNavItem(Icons.school, 'Learning', 1, context),
+                    _buildNavItem(Icons.school, 'Trending', 1, context),
                     _buildNavItem(Icons.menu_book, 'Read', 3, context),
                     _buildNavItem(Icons.sports_cricket, 'Sports', 4, context),
                   ],

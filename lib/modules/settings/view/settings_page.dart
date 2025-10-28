@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../bottom_navbar/bottom_navbar.dart';
 import '../../home/home_page.dart';
-import '../../learning/view/learning_page.dart';
+import '../../trending/view/trending_page.dart';
 import '../../news_details/view/news_details.dart';
 import '../../read/view/read_page.dart';
 import '../../sports/view/cricket_view.dart';
@@ -35,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
       case 1: // Learning
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LearningPage()),
+          MaterialPageRoute(builder: (context) => const TrendingPage()),
         );
         break;
       case 2: // Search

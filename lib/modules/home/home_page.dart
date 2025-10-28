@@ -1,10 +1,11 @@
 import 'package:ap_news/controllers/language_controller.dart';
 import 'package:ap_news/controllers/theme_controller.dart';
+import 'package:ap_news/data/news_data.dart';
 import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
 import 'package:ap_news/modules/categories/view/categories_news.dart';
 import 'package:ap_news/modules/custom_drawer/view/custom_drawer.dart';
 import 'package:ap_news/modules/home/controller/home_controller.dart';
-import 'package:ap_news/modules/learning/view/learning_page.dart';
+import 'package:ap_news/modules/trending/view/trending_page.dart';
 import 'package:ap_news/modules/news_details/model/news_details_model.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
 import 'package:ap_news/modules/read/view/read_page.dart';
@@ -185,7 +186,7 @@ class _HomePageState extends State<HomePage>
     setState(() => _currentBottomNavIndex = index);
     switch (index) {
       case 1:
-        Get.to(() => const LearningPage());
+        Get.to(() => const TrendingPage());
         break;
       case 2:
         Get.to(() => const ShortsPage());

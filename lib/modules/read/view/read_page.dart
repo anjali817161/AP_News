@@ -1,16 +1,14 @@
+import 'package:ap_news/controllers/theme_controller.dart';
+import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
+import 'package:ap_news/modules/home/home_page.dart';
+import 'package:ap_news/modules/news_details/view/news_details.dart';
+import 'package:ap_news/modules/read/controller/read_controller.dart';
+import 'package:ap_news/modules/read/model/news_model.dart';
+import 'package:ap_news/modules/sports/view/cricket_view.dart';
+import 'package:ap_news/modules/trending/view/trending_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import '../../bottom_navbar/bottom_navbar.dart';
-import '../../home/home_page.dart';
-import '../../learning/view/learning_page.dart';
-import '../../news_details/view/news_details.dart';
-import '../../settings/view/settings_page.dart';
-import '../../sports/view/cricket_view.dart';
-import '../../../controllers/theme_controller.dart';
-
-import '../controller/read_controller.dart';
-import '../model/news_model.dart';
 
 class ReadPage extends StatefulWidget {
   const ReadPage({super.key});
@@ -37,7 +35,7 @@ class _ReadPageState extends State<ReadPage> {
       case 1: // Learning
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LearningPage()),
+          MaterialPageRoute(builder: (context) => const TrendingPage()),
         );
         break;
       case 2: // Search

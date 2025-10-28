@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import '../model/news_model.dart';
+import '../model/trending_model.dart';
 
-class LearningController extends GetxController {
+class TrendingController extends GetxController {
   var newsList = <News>[].obs;
   var savedNews = <News>[].obs;
 

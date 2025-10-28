@@ -1,25 +1,23 @@
+import 'package:ap_news/controllers/theme_controller.dart';
+import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
+import 'package:ap_news/modules/home/home_page.dart';
+import 'package:ap_news/modules/news_details/view/news_details.dart';
+import 'package:ap_news/modules/trending/model/trending_model.dart' as trending;
+import 'package:ap_news/modules/read/view/read_page.dart';
+import 'package:ap_news/modules/sports/view/cricket_view.dart';
+import 'package:ap_news/modules/trending/controller/trending_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import '../../bottom_navbar/bottom_navbar.dart';
-import '../../home/home_page.dart';
-import '../../news_details/view/news_details.dart';
-import '../../read/view/read_page.dart';
-import '../../settings/view/settings_page.dart';
-import '../../sports/view/cricket_view.dart';
-import '../../../controllers/theme_controller.dart';
 
-import '../controller/learning_controller.dart';
-import '../model/news_model.dart';
-
-class LearningPage extends StatefulWidget {
-  const LearningPage({super.key});
+class TrendingPage extends StatefulWidget {
+  const TrendingPage({super.key});
 
   @override
-  State<LearningPage> createState() => _LearningPageState();
+  State<TrendingPage> createState() => _LearningPageState();
 }
 
-class _LearningPageState extends State<LearningPage> {
+class _LearningPageState extends State<TrendingPage> {
   int _currentBottomNavIndex = 1; // Learning is index 1
 
   void _onBottomNavTap(int index) {
@@ -39,7 +37,10 @@ class _LearningPageState extends State<LearningPage> {
         break;
       case 2: // Search
         // Show search dialog or navigate to search page
-        _showSearchDialog();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const TrendingPage()),
+        );
         break;
       case 3: // Read
         Navigator.pushReplacement(
@@ -54,51 +55,6 @@ class _LearningPageState extends State<LearningPage> {
         );
         break;
     }
-  }
-
-  void _showSearchDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Search Flight',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchField('From', Icons.flight_takeoff),
-            const SizedBox(height: 10),
-            _buildSearchField('To', Icons.flight_land),
-            const SizedBox(height: 15),
-            _buildFilterSection(),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[800],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
-            child: const Text('Search'),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildSearchField(String hint, IconData icon) {
@@ -171,7 +127,7 @@ class _LearningPageState extends State<LearningPage> {
 
   @override
   Widget build(BuildContext context) {
-    final LearningController controller = Get.put(LearningController());
+    final TrendingController controller = Get.put(TrendingController());
     final themeController = Provider.of<ThemeController>(context);
     final isDarkTheme = themeController.isDarkMode;
 
@@ -206,7 +162,7 @@ class _LearningPageState extends State<LearningPage> {
     );
   }
 
-  Widget _buildNewsCard(News news, LearningController controller) {
+  Widget _buildNewsCard(trending.News news, TrendingController controller) {
     final themeController = Provider.of<ThemeController>(
       context,
       listen: false,

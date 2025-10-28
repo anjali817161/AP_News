@@ -27,3 +27,4 @@ class ThemeController with ChangeNotifier {
     await prefs.setBool('isDarkMode', _isDarkMode);
   }
 }
+
