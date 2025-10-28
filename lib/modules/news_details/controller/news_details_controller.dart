@@ -1,6 +1,8 @@
 // lib/controllers/news_detail_controller.dart
 import 'dart:async';
 import 'package:ap_news/modules/news_details/model/news_details_model.dart';
+import 'package:ap_news/modules/read/model/news_model.dart';
+import 'package:ap_news/services/news_service.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -130,21 +132,59 @@ class NewsDetailController extends GetxController {
     );
   }
 
-  void _makeDummyRelated() {
-    final base = article.value!.title.split(' ').take(3).join(' ');
-    final List<NewsModel> rel = List.generate(4, (i) {
-      return NewsModel(
-        id: '${article.value!.id}_r_$i',
-        title: '$base — related ${i + 1}',
-        summary: article.value!.summary ?? 'Related short summary.',
-        content: null,
-        image: 'https://picsum.photos/800/450?random=${100 + i}',
-        author: article.value!.author,
-        time: '${(i + 1) * 2}h ago',
-        url: article.value!.url,
-      );
-    });
-    related.assignAll(rel);
+  void _makeDummyRelated() async {
+    try {
+      final newsService = NewsService();
+      final fetchedNews = await newsService.fetchLatestNews();
+      if (fetchedNews.isNotEmpty) {
+        final relatedNews = fetchedNews.take(4).map((news) {
+          return NewsModel(
+            id: news.articleId ?? news.title.hashCode.toString(),
+            title: news.title,
+            summary: news.description,
+            content: news.description,
+            image: news.imageUrl,
+            author: 'AP Desk',
+            time: news.timeAgo,
+            url: news.link,
+            category: news.category,
+          );
+        }).toList();
+        related.assignAll(relatedNews);
+      } else {
+        // Fallback to dummy data if API fails
+        final base = article.value!.title.split(' ').take(3).join(' ');
+        final List<NewsModel> rel = List.generate(4, (i) {
+          return NewsModel(
+            id: '${article.value!.id}_r_$i',
+            title: '$base — related ${i + 1}',
+            summary: article.value!.summary ?? 'Related short summary.',
+            content: null,
+            image: 'https://picsum.photos/800/450?random=${100 + i}',
+            author: article.value!.author,
+            time: '${(i + 1) * 2}h ago',
+            url: article.value!.url,
+          );
+        });
+        related.assignAll(rel);
+      }
+    } catch (e) {
+      // Fallback to dummy data if API fails
+      final base = article.value!.title.split(' ').take(3).join(' ');
+      final List<NewsModel> rel = List.generate(4, (i) {
+        return NewsModel(
+          id: '${article.value!.id}_r_$i',
+          title: '$base — related ${i + 1}',
+          summary: article.value!.summary ?? 'Related short summary.',
+          content: null,
+          image: 'https://picsum.photos/800/450?random=${100 + i}',
+          author: article.value!.author,
+          time: '${(i + 1) * 2}h ago',
+          url: article.value!.url,
+        );
+      });
+      related.assignAll(rel);
+    }
   }
 
   /// Update the article and mode for navigation

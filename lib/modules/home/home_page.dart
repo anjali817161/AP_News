@@ -1,10 +1,11 @@
-// lib/modules/home/home_page.dart
 import 'package:ap_news/controllers/language_controller.dart';
 import 'package:ap_news/controllers/theme_controller.dart';
 import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
 import 'package:ap_news/modules/categories/view/categories_news.dart';
 import 'package:ap_news/modules/custom_drawer/view/custom_drawer.dart';
+import 'package:ap_news/modules/home/controller/home_controller.dart';
 import 'package:ap_news/modules/learning/view/learning_page.dart';
+import 'package:ap_news/modules/news_details/model/news_details_model.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
 import 'package:ap_news/modules/read/view/read_page.dart';
 import 'package:ap_news/modules/shorts/view/shorts_view.dart';
@@ -33,6 +34,8 @@ class _HomePageState extends State<HomePage>
 
   bool _isDarkTheme = false;
   bool _isHindi = false;
+
+  final HomeController _homeController = Get.put(HomeController());
 
   final List<String> tabs = [
     'Home',
@@ -230,165 +233,172 @@ class _HomePageState extends State<HomePage>
         },
       ),
       appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          _buildTabBar(localizations),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildHomeTab(),
-                // For each other tab, navigate to category page with appropriate sample content
-                CategoryNewsPage(
-                  category: 'Politics',
-                  videoUrl: videoList[0]['url'],
-                  newsFeed: [
-                    {
-                      'title':
-                          'Government Introduces New Electoral Reform Bill',
-                      'summary':
-                          'The proposal aims to modernize voting systems.',
-                      'image': 'https://picsum.photos/800/450?random=201',
-                      'time': '30m ago',
-                      'url': 'https://example.com/politics1',
-                    },
-                    {
-                      'title': 'Prime Minister Addresses National Assembly',
-                      'summary': 'A spirited speech outlining key policies.',
-                      'image': 'https://picsum.photos/800/450?random=202',
-                      'time': '2h ago',
-                      'url': 'https://example.com/politics2',
-                    },
-                  ],
-                ),
-                CategoryNewsPage(
-                  category: 'Business',
-                  videoUrl: videoList[1]['url'],
-                  newsFeed: [
-                    {
-                      'title': 'Stock Market Hits Record High',
-                      'summary': 'Investors optimistic after inflation cools.',
-                      'image': 'https://picsum.photos/800/450?random=301',
-                      'time': '1h ago',
-                      'url': 'https://example.com/business1',
-                    },
-                    {
-                      'title': 'Tech Giants Lead Earnings Rally',
-                      'summary': 'Strong quarterly results push indexes up.',
-                      'image': 'https://picsum.photos/800/450?random=302',
-                      'time': '3h ago',
-                      'url': 'https://example.com/business2',
-                    },
-                  ],
-                ),
-                CategoryNewsPage(
-                  category: 'Technology',
-                  videoUrl: videoList[2]['url'],
-                  newsFeed: [
-                    {
-                      'title': 'AI Startup Unveils Next-Gen Chatbot',
-                      'summary': 'Promising to speed up developer workflows.',
-                      'image': 'https://picsum.photos/800/450?random=401',
-                      'time': '45m ago',
-                      'url': 'https://example.com/tech1',
-                    },
-                    {
-                      'title': 'Security Patch Released for Major OS',
-                      'summary': 'Patch addresses critical vulnerability.',
-                      'image': 'https://picsum.photos/800/450?random=402',
-                      'time': '3h ago',
-                      'url': 'https://example.com/tech2',
-                    },
-                  ],
-                ),
-                CategoryNewsPage(
-                  category: 'Sports',
-                  videoUrl: videoList[3]['url'],
-                  newsFeed: [
-                    {
-                      'title': 'Home Team Clinches Championship',
-                      'summary': 'Late penalty secures dramatic victory.',
-                      'image': 'https://picsum.photos/800/450?random=501',
-                      'time': '15m ago',
-                      'url': 'https://example.com/sports1',
-                    },
-                    {
-                      'title': 'Olympic Committee Announces New Game Lineup',
-                      'summary': 'Three new sports will debut next summer.',
-                      'image': 'https://picsum.photos/800/450?random=502',
-                      'time': '1h ago',
-                      'url': 'https://example.com/sports2',
-                    },
-                  ],
-                ),
-                CategoryNewsPage(
-                  category: 'Entertainment',
-                  videoUrl: videoList[4]['url'],
-                  newsFeed: [
-                    {
-                      'title': 'Blockbuster Film Crosses 1B Worldwide',
-                      'summary': 'Record-breaking box office numbers.',
-                      'image': 'https://picsum.photos/800/450?random=601',
-                      'time': '2h ago',
-                      'url': 'https://example.com/ent1',
-                    },
-                    {
-                      'title': 'Actor Announces New Project',
-                      'summary':
-                          'A drama exploring themes of loss and redemption.',
-                      'image': 'https://picsum.photos/800/450?random=602',
-                      'time': '6h ago',
-                      'url': 'https://example.com/ent2',
-                    },
-                  ],
-                ),
-                CategoryNewsPage(
-                  category: 'Health',
-                  videoUrl: videoList[0]['url'],
-                  newsFeed: [
-                    {
-                      'title': 'WHO Issues New Healthy Lifestyle Guidelines',
-                      'summary':
-                          'Recommendations for increased physical activity.',
-                      'image': 'https://picsum.photos/800/450?random=701',
-                      'time': '1h ago',
-                      'url': 'https://example.com/health1',
-                    },
-                    {
-                      'title': 'Breakthrough in Cancer Trials',
-                      'summary':
-                          'Early results show promising remission rates.',
-                      'image': 'https://picsum.photos/800/450?random=702',
-                      'time': '4h ago',
-                      'url': 'https://example.com/health2',
-                    },
-                  ],
-                ),
-                CategoryNewsPage(
-                  category: 'Science',
-                  videoUrl: videoList[1]['url'],
-                  newsFeed: [
-                    {
-                      'title': 'NASA Unveils Lunar Exploration Plan',
-                      'summary': 'Artemis next phase includes crewed missions.',
-                      'image': 'https://picsum.photos/800/450?random=801',
-                      'time': '3h ago',
-                      'url': 'https://example.com/science1',
-                    },
-                    {
-                      'title': 'Fusion Energy Breakthrough',
-                      'summary':
-                          'Sustained reaction times with net positive output.',
-                      'image': 'https://picsum.photos/800/450?random=802',
-                      'time': '6h ago',
-                      'url': 'https://example.com/science2',
-                    },
-                  ],
-                ),
-              ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await _homeController.fetchInitialNews();
+        },
+        child: Column(
+          children: [
+            _buildTabBar(localizations),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildHomeTab(),
+                  // For each other tab, navigate to category page with appropriate sample content
+                  CategoryNewsPage(
+                    category: 'Politics',
+                    videoUrl: videoList[0]['url'],
+                    newsFeed: [
+                      {
+                        'title':
+                            'Government Introduces New Electoral Reform Bill',
+                        'summary':
+                            'The proposal aims to modernize voting systems.',
+                        'image': 'https://picsum.photos/800/450?random=201',
+                        'time': '30m ago',
+                        'url': 'https://example.com/politics1',
+                      },
+                      {
+                        'title': 'Prime Minister Addresses National Assembly',
+                        'summary': 'A spirited speech outlining key policies.',
+                        'image': 'https://picsum.photos/800/450?random=202',
+                        'time': '2h ago',
+                        'url': 'https://example.com/politics2',
+                      },
+                    ],
+                  ),
+                  CategoryNewsPage(
+                    category: 'Business',
+                    videoUrl: videoList[1]['url'],
+                    newsFeed: [
+                      {
+                        'title': 'Stock Market Hits Record High',
+                        'summary':
+                            'Investors optimistic after inflation cools.',
+                        'image': 'https://picsum.photos/800/450?random=301',
+                        'time': '1h ago',
+                        'url': 'https://example.com/business1',
+                      },
+                      {
+                        'title': 'Tech Giants Lead Earnings Rally',
+                        'summary': 'Strong quarterly results push indexes up.',
+                        'image': 'https://picsum.photos/800/450?random=302',
+                        'time': '3h ago',
+                        'url': 'https://example.com/business2',
+                      },
+                    ],
+                  ),
+                  CategoryNewsPage(
+                    category: 'Technology',
+                    videoUrl: videoList[2]['url'],
+                    newsFeed: [
+                      {
+                        'title': 'AI Startup Unveils Next-Gen Chatbot',
+                        'summary': 'Promising to speed up developer workflows.',
+                        'image': 'https://picsum.photos/800/450?random=401',
+                        'time': '45m ago',
+                        'url': 'https://example.com/tech1',
+                      },
+                      {
+                        'title': 'Security Patch Released for Major OS',
+                        'summary': 'Patch addresses critical vulnerability.',
+                        'image': 'https://picsum.photos/800/450?random=402',
+                        'time': '3h ago',
+                        'url': 'https://example.com/tech2',
+                      },
+                    ],
+                  ),
+                  CategoryNewsPage(
+                    category: 'Sports',
+                    videoUrl: videoList[3]['url'],
+                    newsFeed: [
+                      {
+                        'title': 'Home Team Clinches Championship',
+                        'summary': 'Late penalty secures dramatic victory.',
+                        'image': 'https://picsum.photos/800/450?random=501',
+                        'time': '15m ago',
+                        'url': 'https://example.com/sports1',
+                      },
+                      {
+                        'title': 'Olympic Committee Announces New Game Lineup',
+                        'summary': 'Three new sports will debut next summer.',
+                        'image': 'https://picsum.photos/800/450?random=502',
+                        'time': '1h ago',
+                        'url': 'https://example.com/sports2',
+                      },
+                    ],
+                  ),
+                  CategoryNewsPage(
+                    category: 'Entertainment',
+                    videoUrl: videoList[4]['url'],
+                    newsFeed: [
+                      {
+                        'title': 'Blockbuster Film Crosses 1B Worldwide',
+                        'summary': 'Record-breaking box office numbers.',
+                        'image': 'https://picsum.photos/800/450?random=601',
+                        'time': '2h ago',
+                        'url': 'https://example.com/ent1',
+                      },
+                      {
+                        'title': 'Actor Announces New Project',
+                        'summary':
+                            'A drama exploring themes of loss and redemption.',
+                        'image': 'https://picsum.photos/800/450?random=602',
+                        'time': '6h ago',
+                        'url': 'https://example.com/ent2',
+                      },
+                    ],
+                  ),
+                  CategoryNewsPage(
+                    category: 'Health',
+                    videoUrl: videoList[0]['url'],
+                    newsFeed: [
+                      {
+                        'title': 'WHO Issues New Healthy Lifestyle Guidelines',
+                        'summary':
+                            'Recommendations for increased physical activity.',
+                        'image': 'https://picsum.photos/800/450?random=701',
+                        'time': '1h ago',
+                        'url': 'https://example.com/health1',
+                      },
+                      {
+                        'title': 'Breakthrough in Cancer Trials',
+                        'summary':
+                            'Early results show promising remission rates.',
+                        'image': 'https://picsum.photos/800/450?random=702',
+                        'time': '4h ago',
+                        'url': 'https://example.com/health2',
+                      },
+                    ],
+                  ),
+                  CategoryNewsPage(
+                    category: 'Science',
+                    videoUrl: videoList[1]['url'],
+                    newsFeed: [
+                      {
+                        'title': 'NASA Unveils Lunar Exploration Plan',
+                        'summary':
+                            'Artemis next phase includes crewed missions.',
+                        'image': 'https://picsum.photos/800/450?random=801',
+                        'time': '3h ago',
+                        'url': 'https://example.com/science1',
+                      },
+                      {
+                        'title': 'Fusion Energy Breakthrough',
+                        'summary':
+                            'Sustained reaction times with net positive output.',
+                        'image': 'https://picsum.photos/800/450?random=802',
+                        'time': '6h ago',
+                        'url': 'https://example.com/science2',
+                      },
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentBottomNavIndex,
@@ -885,155 +895,188 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           const SizedBox(height: 16),
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: newsCards.length,
-            itemBuilder: (context, index) {
-              final news = newsCards[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: _isDarkTheme ? Colors.grey[800] : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.15),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        bottomLeft: Radius.circular(16),
+          Obx(() {
+            if (_homeController.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: _homeController.newsList.length,
+              itemBuilder: (context, index) {
+                final news = _homeController.newsList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: _isDarkTheme ? Colors.grey[800] : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.15),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
-                      child: Image.network(
-                        news['image'],
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          bottomLeft: Radius.circular(16),
+                        ),
+                        child: Image.network(
+                          news.imageUrl,
                           width: 120,
                           height: 120,
-                          color: Colors.grey[200],
-                          alignment: Alignment.center,
-                          child: const Icon(Icons.broken_image),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 120,
+                            height: 120,
+                            color: Colors.grey[200],
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.broken_image),
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red[50],
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.red[100]!),
-                              ),
-                              child: Text(
-                                news['category'],
-                                style: TextStyle(
-                                  color: Colors.red[800],
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
                                 ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              news['title'],
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: _isDarkTheme
-                                    ? Colors.white
-                                    : Colors.black87,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              news['summary'],
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: _isDarkTheme
-                                    ? Colors.grey[300]
-                                    : Colors.grey[700],
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  size: 14,
-                                  color: Colors.grey[500],
+                                decoration: BoxDecoration(
+                                  color: Colors.red[50],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.red[100]!),
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  news['time'],
+                                child: Text(
+                                  news.category,
                                   style: TextStyle(
+                                    color: Colors.red[800],
                                     fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                news.title,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: _isDarkTheme
+                                      ? Colors.white
+                                      : Colors.black87,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                news.description,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: _isDarkTheme
+                                      ? Colors.grey[300]
+                                      : Colors.grey[700],
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 14,
                                     color: Colors.grey[500],
                                   ),
-                                ),
-                                const Spacer(),
-                                TextButton(
-                                  onPressed: () {
-                                    // Open News Detail in article mode
-                                    Get.to(
-                                      () => const NewsDetailPage(),
-                                      arguments: {
-                                        'mode': 'article',
-                                        'item': news,
-                                      },
-                                    );
-                                  },
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    backgroundColor: Colors.red[50],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Read More',
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    news.timeAgo,
                                     style: TextStyle(
-                                      color: Colors.red[800],
                                       fontSize: 12,
-                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[500],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  const Spacer(),
+                                  IconButton(
+                                    icon: Icon(
+                                      news.isSaved
+                                          ? Icons.bookmark
+                                          : Icons.bookmark_border,
+                                      color: news.isSaved
+                                          ? Colors.red
+                                          : Colors.grey,
+                                    ),
+                                    onPressed: () =>
+                                        _homeController.toggleSave(news),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Convert News to NewsModel for details page
+                                      final newsModel = NewsModel(
+                                        id:
+                                            news.articleId ??
+                                            news.title.hashCode.toString(),
+                                        title: news.title,
+                                        summary: news.description,
+                                        content: news
+                                            .description, // Use description as content for now
+                                        image: news.imageUrl,
+                                        author: 'AP Desk',
+                                        time: news.timeAgo,
+                                        url: news.link,
+                                        category: news.category,
+                                      );
+
+                                      // Open News Detail in article mode
+                                      Get.to(
+                                        () => const NewsDetailPage(),
+                                        arguments: {
+                                          'mode': 'article',
+                                          'item': newsModel,
+                                        },
+                                      );
+                                    },
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      backgroundColor: Colors.red[50],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Read More',
+                                      style: TextStyle(
+                                        color: Colors.red[800],
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }),
         ],
       ),
     );

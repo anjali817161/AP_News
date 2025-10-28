@@ -10,4 +10,9 @@ class ApiEndpoints {
   // News endpoints
   static const String getNews = '$baseUrl/news';
   static const String getNewsByCategory = '$baseUrl/news/category';
+
+  // NewsData.io API
+  static const String newsDataApi = 'https://newsdata.io/api/1/latest';
+  static const String newsApiKey = 'pub_150af8948d6a4c07ba37ab0f40a03d6a';
+  static const String newsQuery = 'news';
 }
