@@ -1,6 +1,9 @@
 import 'package:ap_news/auth/login_signup/view/login_view.dart';
 import 'package:ap_news/modules/home/home_page.dart';
+import 'package:ap_news/modules/weather/weather_controller.dart';
+import 'package:ap_news/modules/weather/weather_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -9,10 +12,46 @@ import 'controllers/theme_controller.dart';
 import 'controllers/language_controller.dart';
 import 'utils/localization.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 1) Try to load .env file from project root
+  try {
+    // If you used a different filename, change fileName param.
+    await dotenv.load(fileName: ".env");
+    debugPrint('✅ Loaded .env file');
+  } catch (e) {
+    // FileNotFoundError or other load issues end up here
+    debugPrint('⚠️ Could not load .env file: $e');
+    debugPrint(
+      'You can provide OPENWEATHER_API_KEY via --dart-define or ensure .env exists at project root.',
+    );
+  }
+
+  // 2) Read API key from dotenv first, then fallback to dart-define
+  final envKey = dotenv.env['OPENWEATHER_API_KEY'];
+  final dartDefineKey = const String.fromEnvironment(
+    'OPENWEATHER_API_KEY',
+    defaultValue: '',
+  );
+  final String apiKey = envKey?.isNotEmpty == true ? envKey! : dartDefineKey;
+
+  if (apiKey.isEmpty) {
+    debugPrint(
+      '⚠️ OPENWEATHER_API_KEY not found. Weather feature will be disabled until you provide the key.',
+    );
+  } else {
+    debugPrint('Using OpenWeather API key (length=${apiKey.length})');
+  }
+
+  // create service and controller (you already had this approach)
+  final ws = WeatherService(apiKey: apiKey);
+  Get.put(WeatherController(service: ws));
+
+  // auth
   final authController = AuthController();
   await authController.checkAuthStatus();
+
   runApp(MyApp(authController: authController));
 }
 

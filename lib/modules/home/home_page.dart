@@ -9,6 +9,8 @@ import 'package:ap_news/modules/news_details/view/news_details.dart';
 import 'package:ap_news/modules/read/view/read_page.dart';
 import 'package:ap_news/modules/shorts/view/shorts_view.dart';
 import 'package:ap_news/modules/sports/view/cricket_view.dart';
+import 'package:ap_news/modules/weather/weather_Card.dart';
+import 'package:ap_news/modules/weather/weather_controller.dart';
 import 'package:ap_news/utils/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -48,16 +50,22 @@ class _HomePageState extends State<HomePage>
       'title': 'Breaking: Major Economic Summit Concludes',
       'image': 'https://picsum.photos/400/200?random=1',
       'isLive': true,
+      'content':
+          'The major economic summit has concluded with significant announcements on global trade policies and economic reforms.',
     },
     {
       'title': 'Live: Climate Change Conference 2024',
       'image': 'https://picsum.photos/400/200?random=2',
       'isLive': true,
+      'content':
+          'The Climate Change Conference 2024 is underway, discussing urgent measures to combat global warming and environmental challenges.',
     },
     {
       'title': 'Sports Championship Finals',
       'image': 'https://picsum.photos/400/200?random=3',
       'isLive': false,
+      'content':
+          'The sports championship finals delivered thrilling moments with unexpected twists and a memorable victory for the underdogs.',
     },
   ];
 
@@ -133,6 +141,17 @@ class _HomePageState extends State<HomePage>
     _tabController = TabController(length: tabs.length, vsync: this);
     _startCarouselAnimation();
     _startBlinkingAnimation();
+
+    // fetch weather on startup (if controller exists)
+    try {
+      final WeatherController weatherCtrl = Get.find<WeatherController>();
+      // call after a tiny delay to ensure bindings ready
+      Future.delayed(const Duration(milliseconds: 250), () {
+        weatherCtrl.fetchByDeviceLocation();
+      });
+    } catch (e) {
+      // controller not found — ignore
+    }
   }
 
   void _startBlinkingAnimation() {
@@ -406,21 +425,11 @@ class _HomePageState extends State<HomePage>
         ),
       ),
       title: Container(
-        height: 45,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        height: 54,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         child: Image.asset(
-          'assets/images/Ap-news_logo.webp',
+          'assets/images/Ap-news_logo.png',
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
             return const Row(
@@ -509,6 +518,8 @@ class _HomePageState extends State<HomePage>
           const SizedBox(height: 20),
           _buildCarousel(),
           const SizedBox(height: 25),
+          const WeatherCard(),
+          const SizedBox(height: 25),
           _buildMoreVideos(),
           const SizedBox(height: 25),
           _buildNewsCards(),
@@ -588,18 +599,44 @@ class _HomePageState extends State<HomePage>
                           ),
                         ),
                       Positioned(
-                        bottom: 25,
+                        bottom: 70,
                         left: 20,
                         right: 20,
-                        child: Text(
-                          item['title'],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item['title'],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.to(
+                                  () => const NewsDetailPage(),
+                                  arguments: {'mode': 'article', 'item': item},
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red[800],
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text('Watch Now'),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -704,6 +741,9 @@ class _HomePageState extends State<HomePage>
 
                 return GestureDetector(
                   onTap: () {
+                    print('[DEBUG] Video tapped: ${video['title']}');
+                    print('[DEBUG] Video URL: ${video['url']}');
+                    print('[DEBUG] NavItem: $navItem');
                     // Navigate to details page in video mode and play in-app
                     Get.to(
                       () => const NewsDetailPage(),

@@ -6,10 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CricketController extends GetxController {
- 
-  // API URL you provided
-  final String apiUrl = 'https://cwidget.crictimes.org/?v=1.1&a=de0c0c';
-  
+  // API URL for cricket scores data
+  final String apiUrl = 'https://crictimes.org/data/v1/scores.json?q=';
 
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
@@ -47,57 +45,42 @@ class CricketController extends GetxController {
     error.value = '';
 
     try {
-      final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 15));
+      // Append timestamp to avoid caching
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fullUrl = '$apiUrl$timestamp';
+      final response = await http
+          .get(Uri.parse(fullUrl))
+          .timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         final body = response.body;
 
-        // API sometimes returns plain JSON, sometimes wrapped - attempt to decode
+        // Decode JSON response
         final decoded = json.decode(body);
 
-        List<Map<String, dynamic>> parsed = [];
+        // The API returns a map with keys: 'completed', 'live', 'upcoming'
+        // Each key contains a list of matches
+        List<Map<String, dynamic>> allMatches = [];
 
-        // Try common shapes:
-        if (decoded is List) {
-          // If the endpoint returns a list directly
-          parsed = decoded.map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e)).toList();
-        } else if (decoded is Map<String, dynamic>) {
-          // Try to find a key that likely contains items
-          // Common keys: 'items', 'data', 'news', 'articles', 'match'
-          if (decoded['items'] is List) {
-            parsed = List<Map<String, dynamic>>.from(decoded['items']);
-          } else if (decoded['data'] is List) {
-            parsed = List<Map<String, dynamic>>.from(decoded['data']);
-          } else if (decoded['news'] is List) {
-            parsed = List<Map<String, dynamic>>.from(decoded['news']);
-          } else if (decoded['match'] is List) {
-            parsed = List<Map<String, dynamic>>.from(decoded['match']);
-          } else {
-            // If it's a map of items keyed by id, convert to list
-            try {
-              parsed = (decoded as Map<String, dynamic>)
-                  .entries
-                  .map((e) => <String, dynamic>{'key': e.key, 'value': e.value})
-                  .toList()
-                  .cast<Map<String, dynamic>>();
-            } catch (_) {
-              // fallback: wrap the whole map as one item
-              parsed = [decoded];
-            }
-          }
-        } else {
-          // Unknown shape
-          parsed = [];
+        if (decoded is Map<String, dynamic>) {
+          // Combine all matches from different categories
+          final completed = decoded['completed'] ?? [];
+          final live = decoded['live'] ?? [];
+          final upcoming = decoded['upcoming'] ?? [];
+
+          allMatches.addAll(List<Map<String, dynamic>>.from(completed));
+          allMatches.addAll(List<Map<String, dynamic>>.from(live));
+          allMatches.addAll(List<Map<String, dynamic>>.from(upcoming));
         }
 
-        // Normalize each parsed item into Map<String,dynamic>
+        // Normalize each match
         final normalized = <Map<String, dynamic>>[];
-        for (var i = 0; i < parsed.length; i++) {
-          final m = Map<String, dynamic>.from(parsed[i]);
-          // add an id if missing (we'll use index-based fallback)
-          m.putIfAbsent('id', () => m['id']?.toString() ?? 'cricket_$i');
-          // try to extract title / summary / image / views if available
-          // Keep raw map too.
-          normalized.add(m);
+        for (var i = 0; i < allMatches.length; i++) {
+          final match = Map<String, dynamic>.from(allMatches[i]);
+          // Add unique id
+          match.putIfAbsent('id', () => match['url']?.toString() ?? 'match_$i');
+          // Add status for UI display
+          match.putIfAbsent('status', () => match['status'] ?? 'COMPLETED');
+          normalized.add(match);
         }
 
         items.assignAll(normalized);
@@ -105,7 +88,7 @@ class CricketController extends GetxController {
         error.value = 'Server error: ${response.statusCode}';
       }
     } catch (e) {
-      error.value = 'Failed to load cricket news. ${e.toString()}';
+      error.value = 'Failed to load cricket scores. ${e.toString()}';
     } finally {
       isLoading.value = false;
     }
@@ -114,7 +97,8 @@ class CricketController extends GetxController {
   bool isSavedItem(String id) => savedIds.contains(id);
 
   void toggleSave(Map<String, dynamic> item) {
-    final id = (item['id'] ?? item['key'] ?? item['title'] ?? item.hashCode).toString();
+    final id = (item['id'] ?? item['key'] ?? item['title'] ?? item.hashCode)
+        .toString();
     if (savedIds.contains(id)) {
       savedIds.remove(id);
     } else {

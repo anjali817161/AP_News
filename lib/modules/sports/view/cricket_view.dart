@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart'; // optional native share
 
 class CricketPage extends StatelessWidget {
   const CricketPage({Key? key}) : super(key: key);
@@ -16,14 +15,13 @@ class CricketPage extends StatelessWidget {
     Color primaryRed,
     bool isDarkTheme,
   ) {
-    final title = (item['title'] ?? item['headline'] ?? 'Cricket Update')
-        .toString();
-    final summary = (item['summary'] ?? item['desc'] ?? item['short'] ?? '')
-        .toString();
-    final img =
-        (item['image'] ?? item['img'] ?? item['thumb'] ?? item['poster'] ?? '')
-            .toString();
-    final views = (item['views'] ?? item['view'] ?? '').toString();
+    final team1 = (item['t_one'] ?? 'Team 1').toString();
+    final team2 = (item['t_two'] ?? 'Team 2').toString();
+    final series = (item['series'] ?? '').toString();
+    final status = (item['status'] ?? 'COMPLETED').toString();
+    final score1 = (item['t_one_s'] ?? '').toString();
+    final score2 = (item['t_two_s'] ?? '').toString();
+    final matchStatus = (item['m_status'] ?? '').toString();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -39,110 +37,129 @@ class CricketPage extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // left image (if available)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: img.isNotEmpty
-                ? Image.network(
-                    img,
-                    width: 110,
-                    height: 70,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) {
-                      return Container(
-                        width: 110,
-                        height: 70,
-                        color: Colors.grey[200],
-                        child: Icon(
-                          Icons.sports_cricket,
-                          color: Colors.grey[400],
-                        ),
-                      );
-                    },
-                  )
-                : Container(
-                    width: 110,
-                    height: 70,
-                    color: Colors.grey[200],
-                    child: Icon(Icons.sports_cricket, color: Colors.grey[400]),
+          // Series and Status
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: primaryRed.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Cricket',
+                  style: TextStyle(
+                    color: primaryRed,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (status == 'LIVE')
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'LIVE',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          const SizedBox(height: 12),
+          // Teams and Scores
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: primaryRed.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        'Cricket',
-                        style: TextStyle(
-                          color: primaryRed,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      team1,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isDarkTheme ? Colors.white : Colors.black87,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    if (views.isNotEmpty)
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.remove_red_eye,
-                            size: 14,
-                            color: isDarkTheme
-                                ? Colors.grey[300]
-                                : Colors.grey[600],
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            views,
-                            style: TextStyle(
-                              color: isDarkTheme
-                                  ? Colors.grey[300]
-                                  : Colors.grey[700],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                    if (score1.isNotEmpty)
+                      Text(
+                        score1,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: primaryRed,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: isDarkTheme ? Colors.white : Colors.black87,
-                  ),
+              ),
+              Text(
+                'vs',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDarkTheme ? Colors.grey[300] : Colors.grey[600],
                 ),
-                const SizedBox(height: 6),
-                if (summary.isNotEmpty)
-                  Text(
-                    summary,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
-                      fontSize: 13,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      team2,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isDarkTheme ? Colors.white : Colors.black87,
+                      ),
                     ),
-                  ),
-              ],
-            ),
+                    if (score2.isNotEmpty)
+                      Text(
+                        score2,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: primaryRed,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 8),
+          // Match Status
+          if (matchStatus.isNotEmpty)
+            Text(
+              matchStatus,
+              style: TextStyle(
+                fontSize: 12,
+                color: isDarkTheme ? Colors.grey[300] : Colors.grey[600],
+              ),
+            ),
+          // Series
+          if (series.isNotEmpty)
+            Text(
+              series,
+              style: TextStyle(
+                fontSize: 12,
+                color: isDarkTheme ? Colors.grey[400] : Colors.grey[500],
+              ),
+            ),
         ],
       ),
     );
@@ -156,14 +173,17 @@ class CricketPage extends StatelessWidget {
     Color primaryRed,
     bool isDarkTheme,
   ) {
-    final title = (item['title'] ?? item['headline'] ?? 'Cricket Update')
-        .toString();
-    final summary = (item['summary'] ?? item['desc'] ?? '').toString();
-    final img = (item['image'] ?? item['img'] ?? item['thumb'] ?? '')
-        .toString();
-    final views = item['views']?.toString() ?? '';
+    final team1 = (item['t_one'] ?? 'Team 1').toString();
+    final team2 = (item['t_two'] ?? 'Team 2').toString();
+    final series = (item['series'] ?? '').toString();
+    final status = (item['status'] ?? 'COMPLETED').toString();
+    final score1 = (item['t_one_s'] ?? '').toString();
+    final score2 = (item['t_two_s'] ?? '').toString();
+    final matchStatus = (item['m_status'] ?? '').toString();
+    final url = (item['url'] ?? '').toString();
 
-    final id = (item['id'] ?? item['key'] ?? title.hashCode).toString();
+    final id = (item['id'] ?? item['url'] ?? '$team1 vs $team2'.hashCode)
+        .toString();
     final isSaved = c.isSavedItem(id);
 
     return Container(
@@ -179,161 +199,202 @@ class CricketPage extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // image
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            child: img.isNotEmpty
-                ? Image.network(
-                    img,
-                    width: double.infinity,
-                    height: 180,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) {
-                      return Container(
-                        height: 180,
-                        color: Colors.grey[200],
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.sports_cricket,
-                          color: Colors.grey[400],
-                          size: 48,
-                        ),
-                      );
-                    },
-                  )
-                : Container(
-                    height: 180,
-                    color: Colors.grey[200],
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.sports_cricket,
-                      color: Colors.grey[400],
-                      size: 48,
-                    ),
-                  ),
-          ),
-
-          // content
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Series and Status
+            Row(
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isDarkTheme ? Colors.white : Colors.black87,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: primaryRed.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    'Cricket',
+                    style: TextStyle(
+                      color: primaryRed,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  summary,
-                  style: TextStyle(
-                    color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
-                    fontSize: 14,
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 10),
-
-                Row(
-                  children: [
-                    if (views.isNotEmpty) ...[
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: isDarkTheme
-                            ? Colors.grey[300]
-                            : Colors.grey[500],
+                const SizedBox(width: 8),
+                if (status == 'LIVE')
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'LIVE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(width: 6),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Teams and Scores
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        views,
+                        team1,
                         style: TextStyle(
-                          color: isDarkTheme
-                              ? Colors.grey[300]
-                              : Colors.grey[600],
-                          fontSize: 12,
-                        ),
-                      ),
-                      const Spacer(),
-                    ] else
-                      const Spacer(),
-
-                    // Save / Share / Read More
-                    IconButton(
-                      onPressed: () {
-                        c.toggleSave(item);
-                      },
-                      icon: Icon(
-                        isSaved ? Icons.bookmark : Icons.bookmark_outline,
-                      ),
-                      color: isSaved
-                          ? primaryRed
-                          : (isDarkTheme ? Colors.grey[300] : Colors.grey[700]),
-                      tooltip: isSaved ? 'Saved' : 'Save',
-                    ),
-
-                    IconButton(
-                      onPressed: () async {
-                        final shareText = (item['url'] ?? item['link'] ?? title)
-                            .toString();
-                        // If you added share_plus, you can use Share.share(shareText);
-                        await Clipboard.setData(ClipboardData(text: shareText));
-                        Get.snackbar(
-                          'Share',
-                          'Copied to clipboard',
-                          snackPosition: SnackPosition.BOTTOM,
-                          duration: const Duration(seconds: 1),
-                        );
-                      },
-                      icon: const Icon(Icons.share_outlined),
-                      color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
-                      tooltip: 'Share',
-                    ),
-
-                    TextButton(
-                      onPressed: () {
-                        // Navigate to NewsDetailPage
-                        Get.to(
-                          () => const NewsDetailPage(),
-                          arguments: {'mode': 'article', 'item': item},
-                        );
-                      },
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        backgroundColor: Colors.red[50],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      child: Text(
-                        'Read More',
-                        style: TextStyle(
-                          color: Colors.red[800],
-                          fontSize: 12,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: isDarkTheme ? Colors.white : Colors.black87,
                         ),
                       ),
-                    ),
-                  ],
+                      if (score1.isNotEmpty)
+                        Text(
+                          score1,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: primaryRed,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Text(
+                  'vs',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDarkTheme ? Colors.grey[300] : Colors.grey[600],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        team2,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isDarkTheme ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      if (score2.isNotEmpty)
+                        Text(
+                          score2,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: primaryRed,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            // Match Status
+            if (matchStatus.isNotEmpty)
+              Text(
+                matchStatus,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDarkTheme ? Colors.grey[300] : Colors.grey[600],
+                ),
+              ),
+            // Series
+            if (series.isNotEmpty)
+              Text(
+                series,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDarkTheme ? Colors.grey[400] : Colors.grey[500],
+                ),
+              ),
+            const SizedBox(height: 10),
+            // Actions
+            Row(
+              children: [
+                const Spacer(),
+                // Save
+                IconButton(
+                  onPressed: () {
+                    c.toggleSave(item);
+                  },
+                  icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_outline),
+                  color: isSaved
+                      ? primaryRed
+                      : (isDarkTheme ? Colors.grey[300] : Colors.grey[700]),
+                  tooltip: isSaved ? 'Saved' : 'Save',
+                ),
+                // Share
+                IconButton(
+                  onPressed: () async {
+                    final shareText = url.isNotEmpty
+                        ? 'https://crictimes.org/score/$url'
+                        : '$team1 vs $team2';
+                    await Clipboard.setData(ClipboardData(text: shareText));
+                    Get.snackbar(
+                      'Share',
+                      'Copied to clipboard',
+                      snackPosition: SnackPosition.BOTTOM,
+                      duration: const Duration(seconds: 1),
+                    );
+                  },
+                  icon: const Icon(Icons.share_outlined),
+                  color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+                  tooltip: 'Share',
+                ),
+                // View Details
+                TextButton(
+                  onPressed: () {
+                    if (url.isNotEmpty) {
+                      Get.to(
+                        () => const NewsDetailPage(),
+                        arguments: {'mode': 'cricket', 'item': item},
+                      );
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    backgroundColor: Colors.red[50],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  child: Text(
+                    'View Details',
+                    style: TextStyle(
+                      color: Colors.red[800],
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -349,7 +410,10 @@ class CricketPage extends StatelessWidget {
       backgroundColor: _isDarkTheme ? Colors.grey[900] : Colors.grey[50],
       appBar: AppBar(
         backgroundColor: primaryRed,
-        title: const Text('Cricket'),
+        title: const Text(
+          'Cricket News',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
       ),
       body: Obx(() {

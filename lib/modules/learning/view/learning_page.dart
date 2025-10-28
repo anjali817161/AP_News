@@ -226,108 +226,41 @@ class _LearningPageState extends State<LearningPage> {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
-            ),
-            child: Image.network(
-              news.imageUrl,
-              width: 120,
-              height: 120,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red[100]!),
-                    ),
-                    child: Text(
-                      news.category,
-                      style: TextStyle(
-                        color: Colors.red[800],
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    news.title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isDarkTheme ? Colors.white : Colors.black87,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    news.description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  bottomLeft: Radius.circular(16),
+                ),
+                child: Image.network(
+                  news.imageUrl,
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: isDarkTheme
-                            ? Colors.grey[300]
-                            : Colors.grey[500],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        news.timeAgo,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDarkTheme
-                              ? Colors.grey[300]
-                              : Colors.grey[500],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
                         ),
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          // Navigate to NewsDetailPage
-                          Get.to(
-                            () => const NewsDetailPage(),
-                            arguments: {'mode': 'article', 'item': news},
-                          );
-                        },
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          backgroundColor: Colors.red[50],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red[100]!),
                         ),
                         child: Text(
-                          'Read More',
+                          news.category,
                           style: TextStyle(
                             color: Colors.red[800],
                             fontSize: 12,
@@ -335,30 +268,103 @@ class _LearningPageState extends State<LearningPage> {
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(
-                          news.isSaved ? Icons.bookmark : Icons.bookmark_border,
-                          color: news.isSaved
-                              ? Colors.red
-                              : (isDarkTheme ? Colors.grey[300] : Colors.grey),
-                          size: 20,
+                      const SizedBox(height: 10),
+                      Text(
+                        news.title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isDarkTheme ? Colors.white : Colors.black87,
                         ),
-                        onPressed: () => controller.toggleSave(news),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.share,
+                      const SizedBox(height: 6),
+                      Text(
+                        news.description,
+                        style: TextStyle(
+                          fontSize: 14,
                           color: isDarkTheme
                               ? Colors.grey[300]
-                              : Colors.grey[600],
-                          size: 20,
+                              : Colors.grey[700],
                         ),
-                        onPressed: () => controller.shareNews(news),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: isDarkTheme
+                                ? Colors.grey[300]
+                                : Colors.grey[500],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            news.timeAgo,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDarkTheme
+                                  ? Colors.grey[300]
+                                  : Colors.grey[500],
+                            ),
+                          ),
+                          const Spacer(),
+                          TextButton(
+                            onPressed: () {
+                              // Navigate to NewsDetailPage
+                              Get.to(
+                                () => const NewsDetailPage(),
+                                arguments: {'mode': 'article', 'item': news},
+                              );
+                            },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              backgroundColor: Colors.red[50],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            child: Text(
+                              'Read More',
+                              style: TextStyle(
+                                color: Colors.red[800],
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
+            ],
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    news.isSaved ? Icons.bookmark : Icons.bookmark_border,
+                    color: news.isSaved ? Colors.red : Colors.white,
+                    size: 20,
+                  ),
+                  onPressed: () => controller.toggleSave(news),
+                ),
+                IconButton(
+                  icon: Icon(Icons.share, color: Colors.white, size: 20),
+                  onPressed: () => controller.shareNews(news),
+                ),
+              ],
             ),
           ),
         ],

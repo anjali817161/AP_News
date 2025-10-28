@@ -53,6 +53,8 @@ dependencies:
   # GetX for state management
   get: ^4.6.6
   share_plus: ^12.0.1
+  flutter_dotenv: ^5.0.2
+  geolocator: ^9.0.2
 
   # URL launcher for opening YouTube links
   url_launcher: ^6.2.6
@@ -83,6 +85,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - .env
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

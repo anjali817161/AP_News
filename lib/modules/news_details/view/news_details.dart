@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class NewsDetailPage extends StatelessWidget {
   const NewsDetailPage({Key? key}) : super(key: key);
@@ -51,6 +52,12 @@ class NewsDetailPage extends StatelessWidget {
     final isDarkTheme = themeController.isDarkMode;
     final primaryRed = Colors.red[800]!;
 
+    print('[DEBUG] NewsDetailPage.build called');
+    print('[DEBUG] Video mode: ${ctrl.mode}');
+    print(
+      '[DEBUG] Video initialization status: ${ctrl.isVideoInitialized.value}',
+    );
+
     return Scaffold(
       backgroundColor: isDarkTheme ? Colors.grey[900] : Colors.grey[50],
       appBar: AppBar(
@@ -63,9 +70,12 @@ class NewsDetailPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: Obx(() {
-        final a = ctrl.article;
+        final a = ctrl.article.value;
+        if (a == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
         final isVideoMode =
-            ctrl.mode == 'video' && a.videoUrl?.isNotEmpty == true;
+            ctrl.mode.value == 'video' && a.videoUrl?.isNotEmpty == true;
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -83,14 +93,30 @@ class NewsDetailPage extends StatelessWidget {
                       width: double.infinity,
                       height: 250,
                       color: Colors.black,
-                      child:
-                          ctrl.isVideoInitialized.value &&
-                              ctrl.videoController != null
-                          ? AspectRatio(
-                              aspectRatio:
-                                  ctrl.videoController!.value.aspectRatio,
-                              child: VideoPlayer(ctrl.videoController!),
-                            )
+                      child: ctrl.isVideoInitialized.value
+                          ? (ctrl.youtubeController != null
+                                ? YoutubePlayer(
+                                    controller: ctrl.youtubeController!,
+                                    showVideoProgressIndicator: true,
+                                    progressIndicatorColor: Colors.red,
+                                    progressColors: const ProgressBarColors(
+                                      playedColor: Colors.red,
+                                      handleColor: Colors.redAccent,
+                                    ),
+                                  )
+                                : (ctrl.videoController != null
+                                      ? AspectRatio(
+                                          aspectRatio: ctrl
+                                              .videoController!
+                                              .value
+                                              .aspectRatio,
+                                          child: VideoPlayer(
+                                            ctrl.videoController!,
+                                          ),
+                                        )
+                                      : const Center(
+                                          child: CircularProgressIndicator(),
+                                        )))
                           : const Center(child: CircularProgressIndicator()),
                     ),
                     Positioned(
@@ -313,11 +339,7 @@ class NewsDetailPage extends StatelessWidget {
                       final nextMode = (r.videoUrl?.isNotEmpty == true)
                           ? 'video'
                           : 'article';
-                      Get.off(
-                        () => const NewsDetailPage(),
-                        arguments: {'mode': nextMode, 'item': r.toMap()},
-                        transition: Transition.cupertino,
-                      );
+                      ctrl.updateArticle(r, nextMode);
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 8),
