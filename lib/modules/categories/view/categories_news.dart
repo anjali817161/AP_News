@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart'; // for Clipboard
+import 'package:provider/provider.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
+import '../../../controllers/theme_controller.dart';
 
 class CategoryNewsPage extends StatefulWidget {
   final String category;
@@ -142,13 +144,13 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
     );
   }
 
-  Widget _buildInfoCard(Color primaryRed) {
+  Widget _buildInfoCard(Color primaryRed, bool isDarkTheme) {
     // A card that mirrors the politics_page design
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkTheme ? Colors.grey[850] : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -201,10 +203,10 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
           // Headline
           Text(
             _topHeadline(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: isDarkTheme ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 8),
@@ -212,25 +214,46 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
           // author / time / views
           Row(
             children: [
-              const Icon(Icons.person, size: 14, color: Colors.grey),
+              Icon(
+                Icons.person,
+                size: 14,
+                color: isDarkTheme ? Colors.grey[400] : Colors.grey,
+              ),
               const SizedBox(width: 6),
               Text(
                 'By AP Desk',
-                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.grey[400] : Colors.grey[600],
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(width: 12),
-              const Icon(Icons.schedule, size: 14, color: Colors.grey),
+              Icon(
+                Icons.schedule,
+                size: 14,
+                color: isDarkTheme ? Colors.grey[400] : Colors.grey,
+              ),
               const SizedBox(width: 6),
               Text(
                 '2h ago',
-                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.grey[400] : Colors.grey[600],
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(width: 12),
-              const Icon(Icons.visibility, size: 14, color: Colors.grey),
+              Icon(
+                Icons.visibility,
+                size: 14,
+                color: isDarkTheme ? Colors.grey[400] : Colors.grey,
+              ),
               const SizedBox(width: 6),
               Text(
                 '18k views',
-                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.grey[400] : Colors.grey[600],
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
@@ -239,7 +262,10 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
           // description
           Text(
             'A summary of the headline and video content for the ${widget.category.toLowerCase()} category. This provides quick context to readers before they dive into the feed below.',
-            style: TextStyle(color: Colors.grey[800], fontSize: 14),
+            style: TextStyle(
+              color: isDarkTheme ? Colors.grey[300] : Colors.grey[800],
+              fontSize: 14,
+            ),
           ),
 
           const SizedBox(height: 12),
@@ -296,13 +322,18 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
     return '${widget.category} Top Story';
   }
 
-  Widget _buildFeedCard(Map<String, String> item, int index, Color primaryRed) {
+  Widget _buildFeedCard(
+    Map<String, String> item,
+    int index,
+    Color primaryRed,
+    bool isDarkTheme,
+  ) {
     final isSaved = _savedIndices.contains(index);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkTheme ? Colors.grey[850] : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -350,26 +381,38 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
               children: [
                 Text(
                   item['title'] ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: isDarkTheme ? Colors.white : Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   item['summary'] ?? '',
-                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                  style: TextStyle(
+                    color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 10),
 
                 Row(
                   children: [
-                    Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
+                    Icon(
+                      Icons.access_time,
+                      size: 14,
+                      color: isDarkTheme ? Colors.grey[400] : Colors.grey[500],
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       item['time'] ?? '',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      style: TextStyle(
+                        color: isDarkTheme
+                            ? Colors.grey[400]
+                            : Colors.grey[600],
+                        fontSize: 12,
+                      ),
                     ),
                     const Spacer(),
 
@@ -379,7 +422,9 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                       icon: Icon(
                         isSaved ? Icons.bookmark : Icons.bookmark_outline,
                       ),
-                      color: isSaved ? primaryRed : Colors.grey[700],
+                      color: isSaved
+                          ? primaryRed
+                          : (isDarkTheme ? Colors.grey[400] : Colors.grey[700]),
                       tooltip: isSaved ? 'Saved' : 'Save',
                     ),
 
@@ -387,7 +432,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                     IconButton(
                       onPressed: () => _showShareOptions(item),
                       icon: const Icon(Icons.share_outlined),
-                      color: Colors.grey[700],
+                      color: isDarkTheme ? Colors.grey[400] : Colors.grey[700],
                       tooltip: 'Share',
                     ),
 
@@ -405,7 +450,9 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                           horizontal: 8,
                           vertical: 4,
                         ),
-                        backgroundColor: Colors.red[50],
+                        backgroundColor: isDarkTheme
+                            ? Colors.grey[700]
+                            : Colors.red[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -413,7 +460,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                       child: Text(
                         'Read More',
                         style: TextStyle(
-                          color: Colors.red[800],
+                          color: isDarkTheme ? Colors.white : Colors.red[800],
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -431,10 +478,14 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeController = Provider.of<ThemeController>(context);
+    final isDarkTheme = themeController.isDarkMode;
     final primaryRed = Colors.red[800]!;
+    final lightBg = Colors.grey[50];
+    final darkBg = Colors.grey[900]!;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: isDarkTheme ? darkBg : lightBg,
       body: SafeArea(
         bottom: true,
         child: CustomScrollView(
@@ -564,7 +615,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                   ),
 
                   // Info card
-                  _buildInfoCard(primaryRed),
+                  _buildInfoCard(primaryRed, isDarkTheme),
                 ],
               ),
             ),
@@ -575,7 +626,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final item = widget.newsFeed[index];
-                  return _buildFeedCard(item, index, primaryRed);
+                  return _buildFeedCard(item, index, primaryRed, isDarkTheme);
                 }, childCount: widget.newsFeed.length),
               ),
             ),
