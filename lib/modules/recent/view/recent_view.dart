@@ -2,22 +2,22 @@ import 'package:ap_news/controllers/theme_controller.dart';
 import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
 import 'package:ap_news/modules/home/home_page.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
-import 'package:ap_news/modules/read/controller/read_controller.dart';
-import 'package:ap_news/modules/read/model/news_model.dart';
+import 'package:ap_news/modules/recent/controller/recent_controller.dart';
+import 'package:ap_news/modules/recent/model/recentNews_model.dart';
 import 'package:ap_news/modules/sports/view/cricket_view.dart';
 import 'package:ap_news/modules/trending/view/trending_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
-class ReadPage extends StatefulWidget {
-  const ReadPage({super.key});
+class RecentView extends StatefulWidget {
+  const RecentView({super.key});
 
   @override
-  State<ReadPage> createState() => _ReadPageState();
+  State<RecentView> createState() => _RecentPageState();
 }
 
-class _ReadPageState extends State<ReadPage> {
+class _RecentPageState extends State<RecentView> {
   int _currentBottomNavIndex = 3; // Read is index 3
 
   void _onBottomNavTap(int index) {
@@ -169,7 +169,7 @@ class _ReadPageState extends State<ReadPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ReadController controller = Get.put(ReadController());
+    final RecentController controller = Get.put(RecentController());
     final themeController = Provider.of<ThemeController>(context);
     final isDarkTheme = themeController.isDarkMode;
 
@@ -204,7 +204,7 @@ class _ReadPageState extends State<ReadPage> {
     );
   }
 
-  Widget _buildNewsCard(News news, ReadController controller) {
+  Widget _buildNewsCard(News news, RecentController controller) {
     final themeController = Provider.of<ThemeController>(
       context,
       listen: false,

@@ -19,7 +19,7 @@ class NewsDetailPage extends StatelessWidget {
     BorderRadius? borderRadius,
   }) {
     final image = url ?? '';
-    Widget child = image.isNotEmpty
+    Widget child = image.isNotEmpty && image != 'null'
         ? Image.network(
             image,
             width: width,

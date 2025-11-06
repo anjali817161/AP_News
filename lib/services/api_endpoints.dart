@@ -1,6 +1,12 @@
 class ApiEndpoints {
   static const String baseUrl =
-      'https://api.example.com'; // Replace with your API base URL
+      'https://ap-news-b.onrender.com/api/'; 
+
+  static const String liveVideos = 'youtube/live';
+    static const String articleById = 'articles';
+
+
+      
 
   // Authentication endpoints
   static const String login = '$baseUrl/auth/login';
@@ -10,6 +16,7 @@ class ApiEndpoints {
   // News endpoints
   static const String getNews = '$baseUrl/news';
   static const String getNewsByCategory = '$baseUrl/news/category';
+  static const String articlesAll = 'articles/all';
 
   // NewsData.io API
   static const String newsDataApi = 'https://newsdata.io/api/1/latest';

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../modules/read/model/news_model.dart';
+import '../modules/recent/model/recentNews_model.dart';
+import '../models/live_video_model.dart';
+import '../models/full_article_model.dart';
 import 'api_endpoints.dart';
 
 class NewsService {
@@ -56,6 +58,110 @@ class NewsService {
     } catch (e) {
       print('[DEBUG] Exception caught: $e');
       throw Exception('Error fetching news: $e');
+    }
+  }
+
+  Future<List<LiveVideo>> fetchLiveVideos({String? language}) async {
+    try {
+      final lang = language ?? 'en';
+      final url = Uri.parse('${ApiEndpoints.baseUrl}${ApiEndpoints.liveVideos}?lang=$lang');
+
+      print('[DEBUG] Fetching live videos from URL: $url');
+
+      final response = await http.get(url);
+
+      print('[DEBUG] Response status code: ${response.statusCode}');
+      print('[DEBUG] Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final videoData = data['video'];
+        if (videoData != null && videoData['items'] != null) {
+          final results = videoData['items'] as List<dynamic>;
+
+          print('[DEBUG] Number of live videos: ${results.length}');
+
+          return results.map((item) {
+            print('[DEBUG] Processing live video: ${item['snippet']['title']}');
+            return LiveVideo.fromMap(item);
+          }).toList();
+        } else {
+          print('[DEBUG] No videos found in response');
+          return [];
+        }
+      } else {
+        throw Exception(
+          'Failed to load live videos: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('[DEBUG] Exception caught: $e');
+      throw Exception('Error fetching live videos: $e');
+    }
+  }
+
+  Future<List<News>> fetchArticles({int page = 1, int limit = 10}) async {
+    try {
+      // Get current language from shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      final language = prefs.getString('language') ?? 'en';
+
+      final url = Uri.parse('${ApiEndpoints.baseUrl}${ApiEndpoints.articlesAll}?page=$page&limit=$limit');
+
+      print('[DEBUG] Fetching articles from URL: $url');
+
+      final response = await http.get(url);
+
+      print('[DEBUG] Response status code: ${response.statusCode}');
+      print('[DEBUG] Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          final items = data['items'] as List<dynamic>;
+
+          print('[DEBUG] Number of articles: ${items.length}');
+
+          return items.map((item) {
+            print('[DEBUG] Processing article: ${item['title']}');
+            return News.fromArticleJson(item, language);
+          }).toList();
+        } else {
+          throw Exception('API returned success: false');
+        }
+      } else {
+        throw Exception(
+          'Failed to load articles: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('[DEBUG] Exception caught: $e');
+      throw Exception('Error fetching articles: $e');
+    }
+  }
+
+  Future<FullArticleModel> fetchFullArticle(String articleId) async {
+    try {
+      final url = Uri.parse('${ApiEndpoints.baseUrl}articles/$articleId');
+
+      print('[DEBUG] Fetching full article from URL: $url');
+
+      final response = await http.get(url);
+
+      print('[DEBUG] Response status code: ${response.statusCode}');
+      print('[DEBUG] Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return FullArticleModel.fromJson(data);
+      } else {
+        throw Exception(
+          'Failed to load article: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('[DEBUG] Exception caught: $e');
+      throw Exception('Error fetching full article: $e');
     }
   }
 

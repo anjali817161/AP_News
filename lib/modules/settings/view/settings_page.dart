@@ -4,7 +4,7 @@ import '../../bottom_navbar/bottom_navbar.dart';
 import '../../home/home_page.dart';
 import '../../trending/view/trending_page.dart';
 import '../../news_details/view/news_details.dart';
-import '../../read/view/read_page.dart';
+import '../../recent/view/recent_view.dart';
 import '../../sports/view/cricket_view.dart';
 
 import '../controller/settings_controller.dart';
@@ -45,7 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
       case 3: // Read
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const ReadPage()),
+          MaterialPageRoute(builder: (context) => const RecentView()),
         );
         break;
       case 4: // Sports
@@ -227,12 +227,35 @@ class _SettingsPageState extends State<SettingsPage> {
               topLeft: Radius.circular(16),
               bottomLeft: Radius.circular(16),
             ),
-            child: Image.network(
-              news.imageUrl,
-              width: 120,
-              height: 120,
-              fit: BoxFit.cover,
-            ),
+            child: news.imageUrl.isNotEmpty && news.imageUrl != 'null'
+              ? Image.network(
+                  news.imageUrl,
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 120,
+                      height: 120,
+                      color: Colors.grey[300],
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey[600],
+                        size: 40,
+                      ),
+                    );
+                  },
+                )
+              : Container(
+                  width: 120,
+                  height: 120,
+                  color: Colors.grey[300],
+                  child: Icon(
+                    Icons.image_not_supported,
+                    color: Colors.grey[600],
+                    size: 40,
+                  ),
+                ),
           ),
           Expanded(
             child: Padding(

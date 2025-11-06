@@ -2,8 +2,8 @@ import 'package:ap_news/controllers/theme_controller.dart';
 import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
 import 'package:ap_news/modules/home/home_page.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
-import 'package:ap_news/modules/trending/model/trending_model.dart' as trending;
-import 'package:ap_news/modules/read/view/read_page.dart';
+import 'package:ap_news/modules/recent/model/recentNews_model.dart';
+import 'package:ap_news/modules/recent/view/recent_view.dart';
 import 'package:ap_news/modules/sports/view/cricket_view.dart';
 import 'package:ap_news/modules/trending/controller/trending_controller.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +45,7 @@ class _LearningPageState extends State<TrendingPage> {
       case 3: // Read
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const ReadPage()),
+          MaterialPageRoute(builder: (context) => const RecentView()),
         );
         break;
       case 4: // Sports
@@ -142,17 +142,38 @@ class _LearningPageState extends State<TrendingPage> {
         elevation: 0,
       ),
       body: Obx(() {
-        if (controller.newsList.isEmpty) {
+        if (controller.isLoading.value && controller.newsList.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: controller.newsList.length,
-          itemBuilder: (context, index) {
-            final news = controller.newsList[index];
-            return _buildNewsCard(news, controller);
+        if (controller.newsList.isEmpty) {
+          return const Center(child: Text('No articles available'));
+        }
+
+        return NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (!controller.isLoadingMore.value &&
+                scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+              controller.loadMoreArticles();
+            }
+            return false;
           },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: controller.newsList.length + (controller.isLoadingMore.value ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == controller.newsList.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              final news = controller.newsList[index];
+              return _buildNewsCard(news, controller);
+            },
+          ),
         );
       }),
       bottomNavigationBar: CustomBottomNavBar(
@@ -162,7 +183,7 @@ class _LearningPageState extends State<TrendingPage> {
     );
   }
 
-  Widget _buildNewsCard(trending.News news, TrendingController controller) {
+  Widget _buildNewsCard(News news, TrendingController controller) {
     final themeController = Provider.of<ThemeController>(
       context,
       listen: false,
@@ -192,12 +213,35 @@ class _LearningPageState extends State<TrendingPage> {
                   topLeft: Radius.circular(16),
                   bottomLeft: Radius.circular(16),
                 ),
-                child: Image.network(
-                  news.imageUrl,
-                  width: 120,
-                  height: 120,
-                  fit: BoxFit.cover,
-                ),
+                child: news.imageUrl.isNotEmpty && news.imageUrl != 'null'
+                  ? Image.network(
+                      news.imageUrl,
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 120,
+                          height: 120,
+                          color: Colors.grey[300],
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey[600],
+                            size: 40,
+                          ),
+                        );
+                      },
+                    )
+                  : Container(
+                      width: 120,
+                      height: 120,
+                      color: Colors.grey[300],
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey[600],
+                        size: 40,
+                      ),
+                    ),
               ),
               Expanded(
                 child: Padding(

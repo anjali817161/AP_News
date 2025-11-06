@@ -1,20 +1,30 @@
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../services/news_service.dart';
-import '../../read/model/news_model.dart';
+import '../../../models/live_video_model.dart';
+import '../../recent/model/recentNews_model.dart';
 
 class HomeController extends GetxController {
   final NewsService _newsService = NewsService();
 
   var newsList = <News>[].obs;
+  var articlesList = <News>[].obs;
+  var liveVideos = <LiveVideo>[].obs;
   var isLoading = false.obs;
   var isLoadingMore = false.obs;
   var currentPage = 1.obs;
   var hasMoreData = true.obs;
+  var isLoadingLiveVideos = false.obs;
+  var liveVideosError = ''.obs;
+  var isLoadingArticles = false.obs;
+  var articlesError = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchInitialNews();
+    fetchLiveVideos();
+    fetchArticles();
   }
 
   Future<void> fetchInitialNews() async {
@@ -37,6 +47,48 @@ class HomeController extends GetxController {
   void toggleSave(News news) {
     news.isSaved = !news.isSaved;
     newsList.refresh();
+  }
+
+  Future<void> fetchLiveVideos() async {
+    try {
+      isLoadingLiveVideos.value = true;
+      liveVideosError.value = '';
+      // Get current language from shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      final language = prefs.getString('language') ?? 'en';
+      final videos = await _newsService.fetchLiveVideos(language: language);
+      liveVideos.assignAll(videos);
+    } catch (e) {
+      liveVideosError.value = e.toString();
+      print('[DEBUG] Live videos error: $e');
+    } finally {
+      isLoadingLiveVideos.value = false;
+    }
+  }
+
+  Future<void> fetchArticles({int page = 1, int limit = 10}) async {
+    try {
+      isLoadingArticles.value = true;
+      articlesError.value = '';
+      final articles = await _newsService.fetchArticles(page: page, limit: limit);
+      if (page == 1) {
+        articlesList.assignAll(articles);
+      } else {
+        articlesList.addAll(articles);
+      }
+      currentPage.value = page;
+      hasMoreData.value = articles.length == limit;
+    } catch (e) {
+      articlesError.value = e.toString();
+      print('[DEBUG] Articles error: $e');
+    } finally {
+      isLoadingArticles.value = false;
+    }
+  }
+
+  Future<void> loadMoreArticles() async {
+    if (!hasMoreData.value || isLoadingArticles.value) return;
+    await fetchArticles(page: currentPage.value + 1);
   }
 
   void refreshNews() {

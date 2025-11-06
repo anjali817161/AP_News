@@ -1,47 +1,52 @@
 import 'package:get/get.dart';
-import '../model/trending_model.dart';
+import '../../../services/news_service.dart';
+import '../../recent/model/recentNews_model.dart';
 
 class TrendingController extends GetxController {
+  final NewsService _newsService = NewsService();
+
   var newsList = <News>[].obs;
   var savedNews = <News>[].obs;
+  var isLoading = false.obs;
+  var isLoadingMore = false.obs;
+  var currentPage = 1.obs;
+  var hasMoreData = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadDummyNews();
+    fetchArticles();
   }
 
-  void loadDummyNews() {
-    newsList.assignAll([
-      News(
-        title: 'New Educational Technology Revolution',
-        description: 'Learn about the latest advancements in educational technology that are transforming classrooms worldwide.',
-        imageUrl: 'https://picsum.photos/300/200?random=101',
-        category: 'Technology',
-        timeAgo: '2h ago',
-      ),
-      News(
-        title: 'Online Learning Platforms Growth',
-        description: 'The rise of online learning platforms and their impact on traditional education systems.',
-        imageUrl: 'https://picsum.photos/300/200?random=102',
-        category: 'Education',
-        timeAgo: '4h ago',
-      ),
-      News(
-        title: 'STEM Education Initiatives',
-        description: 'Government initiatives to promote STEM education among young students.',
-        imageUrl: 'https://picsum.photos/300/200?random=103',
-        category: 'Science',
-        timeAgo: '6h ago',
-      ),
-      News(
-        title: 'Digital Literacy Programs',
-        description: 'New programs aimed at improving digital literacy skills across all age groups.',
-        imageUrl: 'https://picsum.photos/300/200?random=104',
-        category: 'Technology',
-        timeAgo: '8h ago',
-      ),
-    ]);
+  Future<void> fetchArticles() async {
+    try {
+      isLoading.value = true;
+      final articles = await _newsService.fetchArticles();
+      newsList.assignAll(articles);
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load articles: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> loadMoreArticles() async {
+    if (isLoadingMore.value || !hasMoreData.value) return;
+
+    try {
+      isLoadingMore.value = true;
+      currentPage.value++;
+      final moreArticles = await _newsService.fetchArticles(page: currentPage.value);
+      if (moreArticles.isEmpty) {
+        hasMoreData.value = false;
+      } else {
+        newsList.addAll(moreArticles);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load more articles: $e');
+    } finally {
+      isLoadingMore.value = false;
+    }
   }
 
   void toggleSave(News news) {

@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import '../model/news_model.dart';
+import '../model/recentNews_model.dart';
 
-class ReadController extends GetxController {
+class RecentController extends GetxController {
   var newsList = <News>[].obs;
   var savedNews = <News>[].obs;
 

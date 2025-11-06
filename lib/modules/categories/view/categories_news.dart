@@ -352,25 +352,37 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
-            child: Image.network(
-              item['image'] ?? '',
-              width: double.infinity,
-              height: 160,
-              fit: BoxFit.cover,
-              errorBuilder: (c, e, s) {
-                return Container(
+            child: (item['image'] ?? '').isNotEmpty && (item['image'] ?? '') != 'null'
+              ? Image.network(
+                  item['image'] ?? '',
+                  width: double.infinity,
+                  height: 160,
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) {
+                    return Container(
+                      width: double.infinity,
+                      height: 160,
+                      color: Colors.grey[200],
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.broken_image,
+                        color: Colors.grey[400],
+                        size: 48,
+                      ),
+                    );
+                  },
+                )
+              : Container(
                   width: double.infinity,
                   height: 160,
                   color: Colors.grey[200],
                   alignment: Alignment.center,
                   child: Icon(
-                    Icons.broken_image,
+                    Icons.image_not_supported,
                     color: Colors.grey[400],
                     size: 48,
                   ),
-                );
-              },
-            ),
+                ),
           ),
 
           // content

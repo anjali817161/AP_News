@@ -1,7 +1,7 @@
 // lib/controllers/news_detail_controller.dart
 import 'dart:async';
 import 'package:ap_news/modules/news_details/model/news_details_model.dart';
-import 'package:ap_news/modules/read/model/news_model.dart';
+import 'package:ap_news/modules/recent/model/recentNews_model.dart';
 import 'package:ap_news/services/news_service.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import '../../../services/news_service.dart';
-import '../../../modules/read/model/news_model.dart';
+import '../../recent/model/recentNews_model.dart';
 
 class CategoriesController extends GetxController {
   final NewsService _newsService = NewsService();

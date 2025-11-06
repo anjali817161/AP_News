@@ -54,6 +54,14 @@ class AppLocalizations {
       'search': 'Search',
       'logged_out': 'Logged out',
       'content_coming_soon': 'Content Coming Soon',
+      'bhojpuri': 'Bhojpuri',
+      'elections': 'Elections',
+      'live_videos_unavailable': 'Live videos are currently unavailable',
+      'check_back_later': 'Please check back later or try refreshing',
+      'no_live_videos': 'No live videos available right now',
+      'check_back_content': 'Check back later for live content',
+      'failed_load_news': 'Failed to load news',
+      'check_connection': 'Please check your connection and try again',
     },
     'hi': {
       'login': 'लॉगिन',
@@ -99,6 +107,14 @@ class AppLocalizations {
       'search': 'खोजें',
       'logged_out': 'लॉग आउट हो गया',
       'content_coming_soon': 'सामग्री जल्द आ रही है',
+      'bhojpuri': 'भोजपुरी',
+      'elections': 'चुनाव',
+      'live_videos_unavailable': 'लाइव वीडियो वर्तमान में उपलब्ध नहीं हैं',
+      'check_back_later': 'कृपया बाद में जांचें या रिफ्रेश करें',
+      'no_live_videos': 'अभी कोई लाइव वीडियो उपलब्ध नहीं हैं',
+      'check_back_content': 'लाइव सामग्री के लिए बाद में जांचें',
+      'failed_load_news': 'समाचार लोड करने में विफल',
+      'check_connection': 'कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें',
     },
   };
 
@@ -156,6 +172,20 @@ class AppLocalizations {
       _localizedValues[_locale.languageCode]!['logged_out']!;
   String get content_coming_soon =>
       _localizedValues[_locale.languageCode]!['content_coming_soon']!;
+  String get bhojpuri => _localizedValues[_locale.languageCode]!['bhojpuri']!;
+  String get elections => _localizedValues[_locale.languageCode]!['elections']!;
+  String get live_videos_unavailable =>
+      _localizedValues[_locale.languageCode]!['live_videos_unavailable']!;
+  String get check_back_later =>
+      _localizedValues[_locale.languageCode]!['check_back_later']!;
+  String get no_live_videos =>
+      _localizedValues[_locale.languageCode]!['no_live_videos']!;
+  String get check_back_content =>
+      _localizedValues[_locale.languageCode]!['check_back_content']!;
+  String get failed_load_news =>
+      _localizedValues[_locale.languageCode]!['failed_load_news']!;
+  String get check_connection =>
+      _localizedValues[_locale.languageCode]!['check_connection']!;
 
   String getLocalizedTab(String tab) {
     return _localizedValues[_locale.languageCode]![tab.toLowerCase()] ?? tab;

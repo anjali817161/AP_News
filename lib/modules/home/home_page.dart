@@ -8,12 +8,13 @@ import 'package:ap_news/modules/home/controller/home_controller.dart';
 import 'package:ap_news/modules/trending/view/trending_page.dart';
 import 'package:ap_news/modules/news_details/model/news_details_model.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
-import 'package:ap_news/modules/read/view/read_page.dart';
+import 'package:ap_news/modules/recent/view/recent_view.dart';
 import 'package:ap_news/modules/shorts/view/shorts_view.dart';
 import 'package:ap_news/modules/sports/view/cricket_view.dart';
 import 'package:ap_news/modules/weather/weather_Card.dart';
 import 'package:ap_news/modules/weather/weather_controller.dart';
 import 'package:ap_news/utils/localization.dart';
+import 'package:ap_news/models/live_video_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -40,13 +41,13 @@ class _HomePageState extends State<HomePage>
 
   final List<String> tabs = [
     'Home',
-    'Politics',
+    'Bhojpuri',
     'Business',
-    'Technology',
+   
     'Sports',
-    'Entertainment',
-    'Health',
-    'Science',
+     'Technology',
+     'Elections'
+   
   ];
 
   final List<Map<String, dynamic>> carouselItems = [
@@ -156,6 +157,10 @@ class _HomePageState extends State<HomePage>
     } catch (e) {
       // controller not found — ignore
     }
+
+    // Listen to language changes
+    final languageController = Provider.of<LanguageController>(context, listen: false);
+    languageController.addListener(_refreshArticlesOnLanguageChange);
   }
 
   void _startBlinkingAnimation() {
@@ -170,13 +175,16 @@ class _HomePageState extends State<HomePage>
     Future.delayed(const Duration(seconds: 5), () {
       if (!mounted) return;
       if (_carouselController.hasClients) {
-        int next = _currentCarouselIndex + 1;
-        if (next >= carouselItems.length) next = 0;
-        _carouselController.animateToPage(
-          next,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
+        final liveVideos = _homeController.liveVideos;
+        if (liveVideos.length > 1) {
+          int next = _currentCarouselIndex + 1;
+          if (next >= liveVideos.length) next = 0;
+          _carouselController.animateToPage(
+            next,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
       }
       _startCarouselAnimation();
     });
@@ -192,7 +200,7 @@ class _HomePageState extends State<HomePage>
         Get.to(() => const ShortsPage());
         break;
       case 3:
-        Get.to(() => const ReadPage());
+        Get.to(() => const RecentView());
         break;
       case 4:
         Get.to(() => const CricketPage());
@@ -201,8 +209,15 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+  void _refreshArticlesOnLanguageChange() {
+    // Refresh articles when language changes
+    _homeController.fetchArticles();
+  }
+
   @override
   void dispose() {
+    final languageController = Provider.of<LanguageController>(context, listen: false);
+    languageController.removeListener(_refreshArticlesOnLanguageChange);
     _tabController.dispose();
     _scrollController.dispose();
     _carouselController.dispose();
@@ -521,6 +536,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildHomeTab() {
+    final localizations = AppLocalizations.of(context);
     return SingleChildScrollView(
       controller: _scrollController,
       physics: const BouncingScrollPhysics(),
@@ -531,7 +547,7 @@ class _HomePageState extends State<HomePage>
           const SizedBox(height: 25),
           const WeatherCard(),
           const SizedBox(height: 25),
-          _buildMoreVideos(),
+          _buildMoreVideos(localizations),
           const SizedBox(height: 25),
           _buildNewsCards(),
           const SizedBox(height: 20),
@@ -541,48 +557,173 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildCarousel() {
-    return SizedBox(
-      height: 220,
-      child: Stack(
-        children: [
-          PageView.builder(
-            controller: _carouselController,
-            itemCount: carouselItems.length,
-            onPageChanged: (index) =>
-                setState(() => _currentCarouselIndex = index),
-            itemBuilder: (context, index) {
-              final item = carouselItems[index];
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  image: DecorationImage(
-                    image: NetworkImage(item['image']),
-                    fit: BoxFit.cover,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 6),
+    return Obx(() {
+      final liveVideos = _homeController.liveVideos;
+      final isLoading = _homeController.isLoadingLiveVideos.value;
+      final error = _homeController.liveVideosError.value;
+
+      if (isLoading) {
+        return const SizedBox(
+          height: 220,
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      if (error.isNotEmpty) {
+        return SizedBox(
+          height: 220,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: _isDarkTheme ? Colors.grey[800] : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.video_library_outlined,
+                      size: 48,
+                      color: Colors.grey[500],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Live videos are currently unavailable',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _isDarkTheme ? Colors.white : Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Please check back later or try refreshing',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
-                child: Container(
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (liveVideos.isEmpty) {
+        return SizedBox(
+          height: 220,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: _isDarkTheme ? Colors.grey[800] : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.live_tv_outlined,
+                      size: 48,
+                      color: Colors.grey[500],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No live videos available right now',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _isDarkTheme ? Colors.white : Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Check back later for live content',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      // Start auto-sliding only if more than 1 video
+      if (liveVideos.length > 1) {
+        _startCarouselAnimation();
+      }
+
+      return SizedBox(
+        height: 220,
+        child: Stack(
+          children: [
+            PageView.builder(
+              controller: _carouselController,
+              itemCount: liveVideos.length,
+              onPageChanged: (index) =>
+                  setState(() => _currentCarouselIndex = index),
+              itemBuilder: (context, index) {
+                final video = liveVideos[index];
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.8),
-                        Colors.transparent,
-                      ],
+                    image: DecorationImage(
+                      image: NetworkImage(video.image ?? ''),
+                      fit: BoxFit.cover,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
                   ),
-                  child: Stack(
-                    children: [
-                      if (item['isLive'] == true)
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.8),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                    child: Stack(
+                      children: [
+                        // Always show "LIVE NOW" for live videos
                         Positioned(
                           top: 15,
                           right: 15,
@@ -609,88 +750,104 @@ class _HomePageState extends State<HomePage>
                             ),
                           ),
                         ),
-                      Positioned(
-                        bottom: 70,
-                        left: 20,
-                        right: 20,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item['title'],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed: () {
-                                Get.to(
-                                  () => const NewsDetailPage(),
-                                  arguments: {'mode': 'article', 'item': item},
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red[800],
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
+                        Positioned(
+                          bottom: 70,
+                          left: 20,
+                          right: 20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                video.title,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              child: const Text('Watch Now'),
-                            ),
-                          ],
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () {
+                                  // Convert LiveVideo to NewsModel for details page
+                                  final newsModel = NewsModel(
+                                    id: video.id,
+                                    title: video.title,
+                                    summary: video.summary,
+                                    content: video.summary,
+                                    image: video.image,
+                                    author: 'AP Desk',
+                                    time: video.time ?? 'Live',
+                                    url: video.url,
+                                    category: video.category ?? 'Live',
+                                    videoUrl: video.url,
+                                  );
+
+                                  // Navigate to video mode
+                                  Get.to(
+                                    () => const NewsDetailPage(),
+                                    arguments: {'mode': 'video', 'item': newsModel},
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red[800],
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text('Watch Now'),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          Positioned(
-            bottom: 15,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(carouselItems.length, (index) {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentCarouselIndex == index ? 20 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: _currentCarouselIndex == index
-                        ? Colors.red[800]!
-                        : Colors.white.withOpacity(0.6),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 3,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
-              }),
+              },
             ),
-          ),
-        ],
-      ),
-    );
+            Positioned(
+              bottom: 15,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(liveVideos.length, (index) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: _currentCarouselIndex == index ? 20 : 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: _currentCarouselIndex == index
+                          ? Colors.red[800]!
+                          : Colors.white.withOpacity(0.6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildMoreVideos() {
+  Widget _buildMoreVideos(AppLocalizations localizations) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -702,7 +859,7 @@ class _HomePageState extends State<HomePage>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '📹 More Videos',
+                  '${localizations.more_videos}',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -879,6 +1036,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildNewsCards() {
+    final localizations = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -887,7 +1045,7 @@ class _HomePageState extends State<HomePage>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              '📰 Latest News',
+              '${localizations.latest_news}',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -897,185 +1055,268 @@ class _HomePageState extends State<HomePage>
           ),
           const SizedBox(height: 16),
           Obx(() {
-            if (_homeController.isLoading.value) {
+            if (_homeController.isLoadingArticles.value && _homeController.articlesList.isEmpty) {
               return const Center(child: CircularProgressIndicator());
             }
-            return ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: _homeController.newsList.length,
-              itemBuilder: (context, index) {
-                final news = _homeController.newsList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: _isDarkTheme ? Colors.grey[800] : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.15),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          bottomLeft: Radius.circular(16),
+
+            if (_homeController.articlesError.value.isNotEmpty && _homeController.articlesList.isEmpty) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: _isDarkTheme ? Colors.grey[800] : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.15),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Colors.grey[500],
                         ),
-                        child: Image.network(
-                          news.imageUrl,
-                          width: 120,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 120,
-                            height: 120,
-                            color: Colors.grey[200],
-                            alignment: Alignment.center,
-                            child: const Icon(Icons.broken_image),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Failed to load news',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _isDarkTheme ? Colors.white : Colors.black87,
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 5,
+                        const SizedBox(height: 8),
+                        Text(
+                          'Please check your connection and try again',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return NotificationListener<ScrollNotification>(
+              onNotification: (ScrollNotification scrollInfo) {
+                if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
+                    !_homeController.isLoadingArticles.value &&
+                    _homeController.hasMoreData.value) {
+                  _homeController.loadMoreArticles();
+                }
+                return false;
+              },
+              child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: _homeController.articlesList.length + (_homeController.hasMoreData.value ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == _homeController.articlesList.length) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  final news = _homeController.articlesList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: _isDarkTheme ? Colors.grey[800] : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            bottomLeft: Radius.circular(16),
+                          ),
+                          child: news.imageUrl.isNotEmpty && news.imageUrl != 'null'
+                            ? Image.network(
+                                news.imageUrl,
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 120,
+                                    height: 120,
+                                    color: Colors.grey[300],
+                                    child: Icon(
+                                      Icons.image_not_supported,
+                                      color: Colors.grey[600],
+                                      size: 40,
+                                    ),
+                                  );
+                                },
+                              )
+                            : Container(
+                                width: 120,
+                                height: 120,
+                                color: Colors.grey[300],
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  color: Colors.grey[600],
+                                  size: 40,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: Colors.red[50],
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.red[100]!),
-                                ),
-                                child: Text(
-                                  news.category,
-                                  style: TextStyle(
-                                    color: Colors.red[800],
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
                                   ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                news.title,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: _isDarkTheme
-                                      ? Colors.white
-                                      : Colors.black87,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                news.description,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: _isDarkTheme
-                                      ? Colors.grey[300]
-                                      : Colors.grey[700],
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.access_time,
-                                    size: 14,
-                                    color: Colors.grey[500],
+                                  decoration: BoxDecoration(
+                                    color: Colors.red[50],
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.red[100]!),
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    news.timeAgo,
+                                  child: Text(
+                                    news.category,
                                     style: TextStyle(
+                                      color: Colors.red[800],
                                       fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  news.title,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: _isDarkTheme
+                                        ? Colors.white
+                                        : Colors.black87,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  news.description,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: _isDarkTheme
+                                        ? Colors.grey[300]
+                                        : Colors.grey[700],
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.access_time,
+                                      size: 14,
                                       color: Colors.grey[500],
                                     ),
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                    icon: Icon(
-                                      news.isSaved
-                                          ? Icons.bookmark
-                                          : Icons.bookmark_border,
-                                      color: news.isSaved
-                                          ? Colors.red
-                                          : Colors.grey,
-                                    ),
-                                    onPressed: () =>
-                                        _homeController.toggleSave(news),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      // Convert News to NewsModel for details page
-                                      final newsModel = NewsModel(
-                                        id:
-                                            news.articleId ??
-                                            news.title.hashCode.toString(),
-                                        title: news.title,
-                                        summary: news.description,
-                                        content: news
-                                            .description, // Use description as content for now
-                                        image: news.imageUrl,
-                                        author: 'AP Desk',
-                                        time: news.timeAgo,
-                                        url: news.link,
-                                        category: news.category,
-                                      );
-
-                                      // Open News Detail in article mode
-                                      Get.to(
-                                        () => const NewsDetailPage(),
-                                        arguments: {
-                                          'mode': 'article',
-                                          'item': newsModel,
-                                        },
-                                      );
-                                    },
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      backgroundColor: Colors.red[50],
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Read More',
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      news.timeAgo,
                                       style: TextStyle(
-                                        color: Colors.red[800],
                                         fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey[500],
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                    const Spacer(),
+                                    IconButton(
+                                      icon: Icon(
+                                        news.isSaved
+                                            ? Icons.bookmark
+                                            : Icons.bookmark_border,
+                                        color: news.isSaved
+                                            ? Colors.red
+                                            : Colors.grey,
+                                      ),
+                                      onPressed: () =>
+                                          _homeController.toggleSave(news),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        // Convert News to NewsModel for details page
+                                        final newsModel = NewsModel(
+                                          id:
+                                              news.articleId ??
+                                              news.title.hashCode.toString(),
+                                          title: news.title,
+                                          summary: news.description,
+                                          content: news
+                                              .description, // Use description as content for now
+                                          image: news.imageUrl,
+                                          author: 'AP Desk',
+                                          time: news.timeAgo,
+                                          url: news.link,
+                                          category: news.category,
+                                        );
+
+                                        // Open News Detail in article mode
+                                        Get.to(
+                                          () => const NewsDetailPage(),
+                                          arguments: {
+                                            'mode': 'article',
+                                            'item': newsModel,
+                                          },
+                                        );
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        backgroundColor: Colors.red[50],
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Read More',
+                                        style: TextStyle(
+                                          color: Colors.red[800],
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                      ],
+                    ),
+                  );
+                },
+              ),
             );
           }),
         ],
