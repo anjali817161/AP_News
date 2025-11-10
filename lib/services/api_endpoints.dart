@@ -12,7 +12,7 @@ class ApiEndpoints {
     static const String technologyCategory = 'articles/category/Technology';
     static const String electionsCategory = 'articles/category/Elections';
     static const String sportsCategory = 'articles/category/Sports';
-
+    static const String Joinnow = 'join-team';
 
       
 
@@ -20,6 +20,7 @@ class ApiEndpoints {
   static const String login = '$baseUrl/auth/login';
   static const String signup = '$baseUrl/auth/signup';
   static const String logout = '$baseUrl/auth/logout';
+
 
   // News endpoints
   static const String getNews = '$baseUrl/news';

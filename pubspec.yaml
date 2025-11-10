@@ -59,6 +59,8 @@ dependencies:
   # URL launcher for opening YouTube links
   url_launcher: ^6.2.6
   youtube_player_flutter: ^9.1.3
+  file_picker: ^10.3.3
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:

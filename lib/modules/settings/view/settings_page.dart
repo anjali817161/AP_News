@@ -33,10 +33,10 @@ class _SettingsPageState extends State<SettingsPage> {
         );
         break;
       case 1: // Learning
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const TrendingPage()),
-        );
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => const TrendingPage()),
+        // );
         break;
       case 2: // Search
         // Show search dialog or navigate to search page

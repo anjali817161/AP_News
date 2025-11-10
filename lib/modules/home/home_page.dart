@@ -3,8 +3,10 @@ import 'package:ap_news/controllers/theme_controller.dart';
 import 'package:ap_news/data/news_data.dart';
 import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
 import 'package:ap_news/modules/categories/view/categories_news.dart';
+import 'package:ap_news/modules/custom_drawer/view/JoinASteam.dart';
 import 'package:ap_news/modules/custom_drawer/view/custom_drawer.dart';
 import 'package:ap_news/modules/home/controller/home_controller.dart';
+import 'package:ap_news/modules/profile/view/profile_page.dart';
 import 'package:ap_news/modules/trending/view/trending_page.dart';
 import 'package:ap_news/modules/news_details/model/news_details_model.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
@@ -48,96 +50,6 @@ class _HomePageState extends State<HomePage>
     'Entertainment',
     'Health',
     'Science'
-  ];
-
-  final List<Map<String, dynamic>> carouselItems = [
-    {
-      'title': 'Breaking: Major Economic Summit Concludes',
-      'image': 'https://picsum.photos/400/200?random=1',
-      'isLive': true,
-      'content':
-          'The major economic summit has concluded with significant announcements on global trade policies and economic reforms.',
-    },
-    {
-      'title': 'Live: Climate Change Conference 2024',
-      'image': 'https://picsum.photos/400/200?random=2',
-      'isLive': true,
-      'content':
-          'The Climate Change Conference 2024 is underway, discussing urgent measures to combat global warming and environmental challenges.',
-    },
-    {
-      'title': 'Sports Championship Finals',
-      'image': 'https://picsum.photos/400/200?random=3',
-      'isLive': false,
-      'content':
-          'The sports championship finals delivered thrilling moments with unexpected twists and a memorable victory for the underdogs.',
-    },
-  ];
-
-  // Sample news cards (home feed)
-  final List<Map<String, dynamic>> newsCards = [
-    {
-      'title': 'Bihar Announces New Industrial Policy',
-      'summary':
-          'Comprehensive industrial reform package to promote investment...',
-      'image': 'https://picsum.photos/300/200?random=4',
-      'time': '2h ago',
-      'category': 'Business',
-      'content':
-          'The Bihar government has unveiled a new industrial policy aimed at transforming the state into an investment hub...',
-    },
-    {
-      'title': 'Tech Giant Launches New AI Platform',
-      'summary': 'Revolutionary artificial intelligence system unveiled...',
-      'image': 'https://picsum.photos/300/200?random=5',
-      'time': '6h ago',
-      'category': 'Technology',
-      'content':
-          'A leading technology company introduced a groundbreaking AI platform designed to accelerate global innovation...',
-    },
-    {
-      'title': 'Sports Team Wins Championship',
-      'summary': 'Historic victory in national sports tournament...',
-      'image': 'https://picsum.photos/300/200?random=6',
-      'time': '8h ago',
-      'category': 'Sports',
-      'content':
-          'Fans flooded the streets as their team clinched a dramatic victory in the national finals after a nail-biting finish...',
-    },
-  ];
-
-  // Video list (uses only the YouTube links you provided)
-  final List<Map<String, dynamic>> videoList = [
-    {
-      'title': 'Breaking News: Bihar Political Update',
-      'image': 'https://img.youtube.com/vi/An2vMrJbWjA/maxresdefault.jpg',
-      'url': 'https://youtu.be/An2vMrJbWjA?si=zQFpKUdUvjQABgvD',
-      'summary': 'Latest update from the Bihar Assembly session today.',
-    },
-    {
-      'title': 'Economic Reforms in Bihar',
-      'image': 'https://img.youtube.com/vi/r-Zb9SFfc6s/maxresdefault.jpg',
-      'url': 'https://youtu.be/r-Zb9SFfc6s?si=0vM7969zGTr4Ex9H',
-      'summary': 'New economic initiatives and budget reforms explained.',
-    },
-    {
-      'title': 'Sports Championship Highlights',
-      'image': 'https://img.youtube.com/vi/JzIloLMszm4/maxresdefault.jpg',
-      'url': 'https://youtu.be/JzIloLMszm4?si=LicAWrIsXHFEYByd',
-      'summary': 'All the thrilling moments from this week’s finals.',
-    },
-    {
-      'title': 'Entertainment Industry Buzz',
-      'image': 'https://img.youtube.com/vi/crplFT-RSQo/maxresdefault.jpg',
-      'url': 'https://youtu.be/crplFT-RSQo?si=RBhYhJmWLDLKQmFZ',
-      'summary': 'Bollywood and Hollywood updates you can’t miss.',
-    },
-    {
-      'title': 'Health and Wellness News',
-      'image': 'https://img.youtube.com/vi/RVSR5PCv2LY/maxresdefault.jpg',
-      'url': 'https://youtu.be/RVSR5PCv2LY?si=u6AbpQ-3angp09Ab',
-      'summary': 'Quick tips and health headlines.',
-    },
   ];
 
   @override
@@ -235,19 +147,34 @@ class _HomePageState extends State<HomePage>
 
     return Scaffold(
       backgroundColor: _isDarkTheme ? Colors.grey[900] : Colors.grey[50],
-      drawer: CustomAppDrawer(
-        onProfile: () => Navigator.pop(context),
-        onPrivacyPolicy: () => Navigator.pop(context),
-        onTerms: () => Navigator.pop(context),
-        onLogout: () {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(_isHindi ? 'लॉगआउट किया गया' : 'Logged out'),
-            ),
-          );
-        },
+    drawer: CustomAppDrawer(
+  Joinme: () {
+    Navigator.pop(context);
+    Get.to(() => CareerApplyPage());
+  },
+  onProfile: () {
+    Navigator.pop(context);
+    Get.to(() => ProfilePage());
+  },
+  onPrivacyPolicy: () {
+    Navigator.pop(context);
+    // Navigate to Privacy Screen
+    //Get.to(() => PrivacyPolicyPage());
+  },
+  onTerms: () {
+    Navigator.pop(context);
+   // Get.to(() => TermsPage());
+  },
+  onLogout: () {
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_isHindi ? 'लॉगआउट किया गया' : 'Logged out'),
       ),
+    );
+  },
+),
+
       appBar: _buildAppBar(),
       body: RefreshIndicator(
         onRefresh: () async {

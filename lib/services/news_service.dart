@@ -74,7 +74,7 @@ class NewsService {
       print('[DEBUG] Response status code: ${response.statusCode}');
       print('[DEBUG] Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
         final videoData = data['video'];
         if (videoData != null && videoData['items'] != null) {

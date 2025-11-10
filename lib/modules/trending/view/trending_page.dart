@@ -316,46 +316,46 @@ class _LearningPageState extends State<TrendingPage> {
                             ),
                           ),
                           const Spacer(),
-                          TextButton(
-                            onPressed: () {
-                              // Convert News to NewsModel for details page (same as homepage)
-                              final newsModel = NewsModel(
-                                id: news.articleId ?? news.title.hashCode.toString(),
-                                title: news.title,
-                                summary: news.description,
-                                content: news.description, // Use description as content for now
-                                image: news.imageUrl,
-                                author: 'AP Desk',
-                                time: news.timeAgo,
-                                url: news.link,
-                                category: news.category,
-                              );
+                          // TextButton(
+                          //   onPressed: () {
+                          //     // Convert News to NewsModel for details page (same as homepage)
+                          //     final newsModel = NewsModel(
+                          //       id: news.articleId ?? news.title.hashCode.toString(),
+                          //       title: news.title,
+                          //       summary: news.description,
+                          //       content: news.description, // Use description as content for now
+                          //       image: news.imageUrl,
+                          //       author: 'AP Desk',
+                          //       time: news.timeAgo,
+                          //       url: news.link,
+                          //       category: news.category,
+                          //     );
 
-                              // Navigate to NewsDetailPage in article mode
-                              Get.to(
-                                () => const NewsDetailPage(),
-                                arguments: {'mode': 'article', 'item': newsModel},
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              backgroundColor: Colors.red[50],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                            child: Text(
-                              'Read More',
-                              style: TextStyle(
-                                color: Colors.red[800],
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          //     // Navigate to NewsDetailPage in article mode
+                          //     Get.to(
+                          //       () => const NewsDetailPage(),
+                          //       arguments: {'mode': 'article', 'item': newsModel},
+                          //     );
+                          //   },
+                          //   style: TextButton.styleFrom(
+                          //     padding: const EdgeInsets.symmetric(
+                          //       horizontal: 8,
+                          //       vertical: 4,
+                          //     ),
+                          //     backgroundColor: Colors.red[50],
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(6),
+                          //     ),
+                          //   ),
+                          //   child: Text(
+                          //     'Read More',
+                          //     style: TextStyle(
+                          //       color: Colors.red[800],
+                          //       fontSize: 12,
+                          //       fontWeight: FontWeight.bold,
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ],

@@ -16,6 +16,7 @@ class CustomAppDrawer extends StatelessWidget {
 
   // Required navigation callbacks
   final VoidCallback onProfile;
+  final VoidCallback Joinme;
   final VoidCallback onPrivacyPolicy;
   final VoidCallback onTerms;
   final VoidCallback onLogout;
@@ -27,8 +28,10 @@ class CustomAppDrawer extends StatelessWidget {
     this.onThemeChanged,
     this.isHindi,
     this.onLanguageChanged,
+
     // required callbacks
     required this.onProfile,
+    required this.Joinme,
     required this.onPrivacyPolicy,
     required this.onTerms,
     required this.onLogout,
@@ -248,22 +251,28 @@ class CustomAppDrawer extends StatelessWidget {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(ProfilePage());
-                      },
-                      child: ListTile(
-                        leading: Icon(Icons.person, color: primaryRed),
-                        title: Text(
-                          effectiveIsHindi ? 'प्रोफ़ाइल' : 'Profile',
-                          style: TextStyle(
-                            color: effectiveIsDarkTheme
-                                ? Colors.white
-                                : Colors.black87,
-                          ),
+                     ListTile(
+    leading: Icon(Icons.work, color: primaryRed),
+    title: Text(
+      effectiveIsHindi ? 'हमारी टीम में शामिल हों' : 'Join Our Team',
+      style: TextStyle(
+        color: effectiveIsDarkTheme ? Colors.white : Colors.black87,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    onTap: Joinme,
+  ),
+                    ListTile(
+                      leading: Icon(Icons.person, color: primaryRed),
+                      title: Text(
+                        effectiveIsHindi ? 'प्रोफ़ाइल' : 'Profile',
+                        style: TextStyle(
+                          color: effectiveIsDarkTheme
+                              ? Colors.white
+                              : Colors.black87,
                         ),
-                        onTap: onProfile,
                       ),
+                      onTap: onProfile,
                     ),
                     ListTile(
                       leading: Icon(Icons.lock, color: primaryRed),

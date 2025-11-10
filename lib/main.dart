@@ -19,10 +19,10 @@ Future<void> main() async {
   try {
     // If you used a different filename, change fileName param.
     await dotenv.load(fileName: ".env");
-    debugPrint('✅ Loaded .env file');
+    debugPrint(' Loaded .env file');
   } catch (e) {
     // FileNotFoundError or other load issues end up here
-    debugPrint('⚠️ Could not load .env file: $e');
+    debugPrint('Could not load .env file: $e');
     debugPrint(
       'You can provide OPENWEATHER_API_KEY via --dart-define or ensure .env exists at project root.',
     );
