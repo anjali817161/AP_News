@@ -1,6 +1,9 @@
 // lib/modules/news_details/view/news_details.dart
 import 'package:ap_news/controllers/theme_controller.dart';
 import 'package:ap_news/modules/news_details/controller/news_details_controller.dart';
+import 'package:ap_news/modules/news_details/model/news_details_model.dart';
+import 'package:ap_news/modules/home/controller/home_controller.dart';
+import 'package:ap_news/utils/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -310,12 +313,12 @@ class NewsDetailPage extends StatelessWidget {
               ),
 
               // ----------------------------
-              // Related News
+              // Recent Videos Section
               // ----------------------------
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: Text(
-                  'Related Articles',
+                  'Recent Videos',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -324,134 +327,281 @@ class NewsDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+              Obx(() {
+                final homeCtrl = Get.find<HomeController>();
+                final recentVideos = homeCtrl.recentVideos;
+                final isLoading = homeCtrl.isLoadingRecentVideos.value;
+                final error = homeCtrl.recentVideosError.value;
 
-              ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: ctrl.related.length,
-                separatorBuilder: (_, __) =>
-                    const Divider(height: 1, color: Colors.black12),
-                itemBuilder: (context, i) {
-                  final r = ctrl.related[i];
-                  return GestureDetector(
-                    onTap: () {
-                      final nextMode = (r.videoUrl?.isNotEmpty == true)
-                          ? 'video'
-                          : 'article';
-                      ctrl.updateArticle(r, nextMode);
-                    },
+                if (isLoading) {
+                  return const SizedBox(
+                    height: 220,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (error.isNotEmpty) {
+                  return SizedBox(
+                    height: 220,
                     child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: isDarkTheme ? Colors.grey[800] : Colors.white,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
+                            color: Colors.grey.withOpacity(0.15),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: _safeNetworkImage(
-                              r.image,
-                              width: 100,
-                              height: 70,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.video_library_outlined,
+                                size: 48,
+                                color: Colors.grey[500],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Recent videos are currently unavailable',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDarkTheme ? Colors.white : Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Please check back later or try refreshing',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                if (recentVideos.isEmpty) {
+                  return SizedBox(
+                    height: 220,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: isDarkTheme ? Colors.grey[800] : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.15),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.video_library_outlined,
+                                size: 48,
+                                color: Colors.grey[500],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No recent videos available right now',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDarkTheme ? Colors.white : Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Check back later for recent content',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SizedBox(
+                  height: 220,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: recentVideos.length,
+                    itemBuilder: (context, index) {
+                      final video = recentVideos[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          // Convert RecentVideo to NewsModel for details page
+                          final newsModel = NewsModel(
+                            id: video.id,
+                            title: video.title,
+                            summary: video.summary,
+                            content: video.summary,
+                            image: video.image,
+                            author: video.channelTitle ?? 'AP Desk',
+                            time: video.time ?? 'Recent',
+                            url: video.url,
+                            category: video.category ?? 'Recent',
+                            videoUrl: video.url,
+                          );
+
+                          // Navigate to video mode
+                          Get.to(
+                            () => const NewsDetailPage(),
+                            arguments: {'mode': 'video', 'item': newsModel},
+                          );
+                        },
+                        child: Container(
+                          width: 300,
+                          margin: EdgeInsets.only(
+                            right: index == recentVideos.length - 1 ? 0 : 15,
+                            left: index == 0 ? 8 : 0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            image: DecorationImage(
+                              image: NetworkImage(video.image ?? ''),
                               fit: BoxFit.cover,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18),
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Colors.black.withOpacity(0.8),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(16),
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  r.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                    color: isDarkTheme
-                                        ? Colors.white
-                                        : Colors.black87,
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
                                   ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  r.summary ??
-                                      'A brief look into this related story.',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: isDarkTheme
-                                        ? Colors.grey[300]
-                                        : Colors.grey[700],
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Text(
+                                    'RECENT',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
+                                Text(
+                                  video.title,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black,
+                                        blurRadius: 10,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    Text(
-                                      r.time ?? '',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.share_outlined,
-                                        size: 20,
-                                      ),
-                                      color: Colors.grey[700],
-                                      onPressed: () async {
-                                        final text = r.url?.isNotEmpty == true
-                                            ? r.url!
-                                            : r.title;
-                                        await Clipboard.setData(
-                                          ClipboardData(text: text),
-                                        );
-                                        Get.snackbar(
-                                          'Share',
-                                          'Link copied',
-                                          snackPosition: SnackPosition.BOTTOM,
-                                        );
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.bookmark_outline,
-                                        color: Colors.grey[700],
-                                        size: 20,
-                                      ),
+                                    ElevatedButton.icon(
                                       onPressed: () {
-                                        Get.snackbar(
-                                          'Saved',
-                                          'Added to your saved list',
-                                          snackPosition: SnackPosition.BOTTOM,
+                                        // Convert RecentVideo to NewsModel for details page
+                                        final newsModel = NewsModel(
+                                          id: video.id,
+                                          title: video.title,
+                                          summary: video.summary,
+                                          content: video.summary,
+                                          image: video.image,
+                                          author: 'AP Desk',
+                                          time: video.time ?? 'Recent',
+                                          url: video.url,
+                                          category: video.category ?? 'Recent',
+                                          videoUrl: video.url,
+                                        );
+
+                                        // Navigate to video mode
+                                        Get.to(
+                                          () => const NewsDetailPage(),
+                                          arguments: {'mode': 'video', 'item': newsModel},
                                         );
                                       },
+                                      icon: const Icon(Icons.play_arrow, size: 18),
+                                      label: const Text('Play Now'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red[800],
+                                        foregroundColor: Colors.white,
+                                        minimumSize: const Size(0, 40),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(13),
+                                        ),
+                                        elevation: 3,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }),
               const SizedBox(height: 30),
             ],
           ),

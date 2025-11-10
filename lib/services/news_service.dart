@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../modules/recent/model/recentNews_model.dart';
 import '../models/live_video_model.dart';
 import '../models/full_article_model.dart';
+import '../models/recent_video_model.dart';
 import 'api_endpoints.dart';
 
 class NewsService {
@@ -162,6 +163,101 @@ class NewsService {
     } catch (e) {
       print('[DEBUG] Exception caught: $e');
       throw Exception('Error fetching full article: $e');
+    }
+  }
+
+  Future<List<RecentVideo>> fetchRecentVideos() async {
+    try {
+      final url = Uri.parse('${ApiEndpoints.baseUrl}${ApiEndpoints.recentVideos}');
+
+      print('[DEBUG] Fetching recent videos from URL: $url');
+
+      final response = await http.get(url);
+
+      print('[DEBUG] Response status code: ${response.statusCode}');
+      print('[DEBUG] Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final items = data['items'] as List<dynamic>;
+
+        print('[DEBUG] Number of recent videos: ${items.length}');
+
+        return items.map((item) {
+          print('[DEBUG] Processing recent video: ${item['snippet']['title']}');
+          return RecentVideo.fromJson(item);
+        }).toList();
+      } else {
+        throw Exception(
+          'Failed to load recent videos: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('[DEBUG] Exception caught: $e');
+      throw Exception('Error fetching recent videos: $e');
+    }
+  }
+
+  Future<List<News>> fetchNewsByCategory(String category) async {
+    try {
+      // Get current language from shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      final language = prefs.getString('language') ?? 'en';
+
+      // Map category to endpoint
+      String endpoint;
+      switch (category.toLowerCase()) {
+        case 'business':
+          endpoint = ApiEndpoints.businessCategory;
+          break;
+        case 'bhojpuri':
+          endpoint = ApiEndpoints.bhojpuriCategory;
+          break;
+        case 'technology':
+          endpoint = ApiEndpoints.technologyCategory;
+          break;
+        case 'elections':
+          endpoint = ApiEndpoints.electionsCategory;
+          break;
+        case 'sports':
+          endpoint = ApiEndpoints.sportsCategory;
+          break;
+        default:
+          // Default to business if category not found
+          endpoint = ApiEndpoints.businessCategory;
+      }
+
+      final url = Uri.parse('${ApiEndpoints.baseUrl}$endpoint');
+
+      print('[DEBUG] Fetching category news from URL: $url');
+
+      final response = await http.get(url);
+
+      print('[DEBUG] Response status code: ${response.statusCode}');
+      print('[DEBUG] Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          final items = data['articles'] as List<dynamic>;
+
+          print('[DEBUG] Number of category articles: ${items.length}');
+
+          return items.map((item) {
+            print('[DEBUG] Processing category article: ${item['title']}');
+            return News.fromArticleJson(item, language);
+          }).toList();
+        } else {
+          throw Exception('API returned success: false');
+        }
+      } else {
+        throw Exception(
+          'Failed to load category news: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('[DEBUG] Exception caught: $e');
+      throw Exception('Error fetching category news: $e');
     }
   }
 

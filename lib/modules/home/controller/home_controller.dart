@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../services/news_service.dart';
 import '../../../models/live_video_model.dart';
+import '../../../models/recent_video_model.dart';
 import '../../recent/model/recentNews_model.dart';
 
 class HomeController extends GetxController {
@@ -10,12 +11,15 @@ class HomeController extends GetxController {
   var newsList = <News>[].obs;
   var articlesList = <News>[].obs;
   var liveVideos = <LiveVideo>[].obs;
+  var recentVideos = <RecentVideo>[].obs;
   var isLoading = false.obs;
   var isLoadingMore = false.obs;
   var currentPage = 1.obs;
   var hasMoreData = true.obs;
   var isLoadingLiveVideos = false.obs;
   var liveVideosError = ''.obs;
+  var isLoadingRecentVideos = false.obs;
+  var recentVideosError = ''.obs;
   var isLoadingArticles = false.obs;
   var articlesError = ''.obs;
 
@@ -24,6 +28,7 @@ class HomeController extends GetxController {
     super.onInit();
     fetchInitialNews();
     fetchLiveVideos();
+    fetchRecentVideos();
     fetchArticles();
   }
 
@@ -63,6 +68,20 @@ class HomeController extends GetxController {
       print('[DEBUG] Live videos error: $e');
     } finally {
       isLoadingLiveVideos.value = false;
+    }
+  }
+
+  Future<void> fetchRecentVideos() async {
+    try {
+      isLoadingRecentVideos.value = true;
+      recentVideosError.value = '';
+      final videos = await _newsService.fetchRecentVideos();
+      recentVideos.assignAll(videos);
+    } catch (e) {
+      recentVideosError.value = e.toString();
+      print('[DEBUG] Recent videos error: $e');
+    } finally {
+      isLoadingRecentVideos.value = false;
     }
   }
 

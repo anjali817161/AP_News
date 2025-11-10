@@ -1,23 +1,20 @@
-// lib/modules/home/category_news_page.dart
+// lib/modules/categories/view/categories_news.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart'; // for Clipboard
 import 'package:provider/provider.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
+import 'package:ap_news/modules/news_details/model/news_details_model.dart';
+import 'package:ap_news/modules/categories/controller/categories_controller.dart';
 import '../../../controllers/theme_controller.dart';
+import '../../../modules/recent/model/recentNews_model.dart';
 
 class CategoryNewsPage extends StatefulWidget {
   final String category;
-  final String videoUrl;
-  final List<Map<String, String>>
-  newsFeed; // keys: title, summary, image, time, url (optional)
 
   const CategoryNewsPage({
     Key? key,
     required this.category,
-    required this.videoUrl,
-    required this.newsFeed,
   }) : super(key: key);
 
   @override
@@ -25,73 +22,19 @@ class CategoryNewsPage extends StatefulWidget {
 }
 
 class _CategoryNewsPageState extends State<CategoryNewsPage> {
-  late VideoPlayerController _videoController;
-  bool _videoInitialized = false;
-  bool _isMuted = true;
-  bool _isPlaying = true;
-
-  // Track saved/bookmarked articles by index
-  final Set<int> _savedIndices = {};
+  final CategoriesController _controller = Get.put(CategoriesController());
 
   @override
   void initState() {
     super.initState();
-    _videoController = VideoPlayerController.network(widget.videoUrl)
-      ..initialize().then((_) {
-        _videoController.setLooping(true);
-        _videoController.setVolume(_isMuted ? 0 : 1);
-        _videoController.play();
-        setState(() {
-          _videoInitialized = true;
-          _isPlaying = true;
-        });
-      });
-  }
-
-  @override
-  void dispose() {
-    _videoController.dispose();
-    super.dispose();
-  }
-
-  void _toggleMute() {
-    setState(() {
-      _isMuted = !_isMuted;
-      _videoController.setVolume(_isMuted ? 0 : 1);
+    // Fetch news for the category
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.fetchNewsByCategory(widget.category);
     });
   }
 
-  void _togglePlay() {
-    if (!_videoInitialized) return;
-    setState(() {
-      if (_videoController.value.isPlaying) {
-        _videoController.pause();
-        _isPlaying = false;
-      } else {
-        _videoController.play();
-        _isPlaying = true;
-      }
-    });
-  }
-
-  void _toggleSave(int index) {
-    setState(() {
-      if (_savedIndices.contains(index)) {
-        _savedIndices.remove(index);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Removed from saved — ${widget.category}')),
-        );
-      } else {
-        _savedIndices.add(index);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved article — ${widget.category}')),
-        );
-      }
-    });
-  }
-
-  Future<void> _showShareOptions(Map<String, String> item) async {
-    final url = item['url'] ?? '';
+  Future<void> _showShareOptions(News news) async {
+    final url = news.link ?? '';
     showModalBottomSheet(
       context: context,
       builder: (ctx) {
@@ -112,7 +55,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                   onTap: () async {
                     await Clipboard.setData(
                       ClipboardData(
-                        text: url.isNotEmpty ? url : item['title'].toString(),
+                        text: url.isNotEmpty ? url : news.title,
                       ),
                     );
                     Navigator.pop(ctx);
@@ -144,8 +87,9 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
     );
   }
 
+
+
   Widget _buildInfoCard(Color primaryRed, bool isDarkTheme) {
-    // A card that mirrors the politics_page design
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       padding: const EdgeInsets.all(16),
@@ -189,20 +133,20 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
               const SizedBox(width: 4),
               const Text('4.9', style: TextStyle(fontWeight: FontWeight.w600)),
               const Spacer(),
-              Text(
-                'LIVE',
+              Obx(() => Text(
+                _controller.isLoading.value ? 'LOADING...' : 'ARTICLES',
                 style: TextStyle(
                   color: primaryRed,
                   fontWeight: FontWeight.bold,
                 ),
-              ),
+              )),
             ],
           ),
           const SizedBox(height: 12),
 
           // Headline
           Text(
-            _topHeadline(),
+            '${widget.category} News',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -235,7 +179,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
               ),
               const SizedBox(width: 6),
               Text(
-                '2h ago',
+                'Updated daily',
                 style: TextStyle(
                   color: isDarkTheme ? Colors.grey[400] : Colors.grey[600],
                   fontSize: 13,
@@ -248,87 +192,37 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                 color: isDarkTheme ? Colors.grey[400] : Colors.grey,
               ),
               const SizedBox(width: 6),
-              Text(
-                '18k views',
+              Obx(() => Text(
+                '${_controller.newsList.length} articles',
                 style: TextStyle(
                   color: isDarkTheme ? Colors.grey[400] : Colors.grey[600],
                   fontSize: 13,
                 ),
-              ),
+              )),
             ],
           ),
           const SizedBox(height: 12),
 
           // description
           Text(
-            'A summary of the headline and video content for the ${widget.category.toLowerCase()} category. This provides quick context to readers before they dive into the feed below.',
+            'Latest news and updates from the ${widget.category.toLowerCase()} category. Stay informed with breaking news and in-depth coverage.',
             style: TextStyle(
               color: isDarkTheme ? Colors.grey[300] : Colors.grey[800],
               fontSize: 14,
             ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Action row: watch / share / save
-          Row(
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  // scroll to video or play/pause
-                  if (_videoInitialized) {
-                    _togglePlay();
-                  }
-                },
-                icon: Icon(
-                  _isPlaying ? Icons.pause : Icons.play_arrow,
-                  color: Colors.white,
-                ),
-                label: Text(
-                  _isPlaying ? 'Pause' : 'Play',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryRed,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: () {
-                  _showShareOptions({
-                    'title': _topHeadline(),
-                    'url': widget.newsFeed.isNotEmpty
-                        ? widget.newsFeed[0]['url'] ?? ''
-                        : '',
-                  });
-                },
-                icon: const Icon(Icons.share, color: Colors.red),
-                label: const Text('Share', style: TextStyle(color: Colors.red)),
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  String _topHeadline() {
-    // pick either first news title or a default headline
-    if (widget.newsFeed.isNotEmpty)
-      return widget.newsFeed[0]['title'] ?? '${widget.category} Top Story';
-    return '${widget.category} Top Story';
-  }
-
   Widget _buildFeedCard(
-    Map<String, String> item,
+    News news,
     int index,
     Color primaryRed,
     bool isDarkTheme,
   ) {
-    final isSaved = _savedIndices.contains(index);
+    final isSaved = news.isSaved;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -352,9 +246,9 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
-            child: (item['image'] ?? '').isNotEmpty && (item['image'] ?? '') != 'null'
+            child: news.imageUrl.isNotEmpty
               ? Image.network(
-                  item['image'] ?? '',
+                  news.imageUrl,
                   width: double.infinity,
                   height: 160,
                   fit: BoxFit.cover,
@@ -392,7 +286,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item['title'] ?? '',
+                  news.title,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -401,7 +295,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  item['summary'] ?? '',
+                  news.description,
                   style: TextStyle(
                     color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
                     fontSize: 14,
@@ -418,7 +312,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      item['time'] ?? '',
+                      news.timeAgo,
                       style: TextStyle(
                         color: isDarkTheme
                             ? Colors.grey[400]
@@ -430,7 +324,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
 
                     // Save (bookmark) icon
                     IconButton(
-                      onPressed: () => _toggleSave(index),
+                      onPressed: () => _controller.toggleSave(news),
                       icon: Icon(
                         isSaved ? Icons.bookmark : Icons.bookmark_outline,
                       ),
@@ -442,7 +336,7 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
 
                     // Share icon
                     IconButton(
-                      onPressed: () => _showShareOptions(item),
+                      onPressed: () => _showShareOptions(news),
                       icon: const Icon(Icons.share_outlined),
                       color: isDarkTheme ? Colors.grey[400] : Colors.grey[700],
                       tooltip: 'Share',
@@ -451,10 +345,26 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
                     // Read more button (kept lightweight)
                     TextButton(
                       onPressed: () {
-                        // Navigate to NewsDetailPage
+                        // Convert News to NewsModel for details page
+                        final newsModel = NewsModel(
+                          id: news.articleId ?? news.title.hashCode.toString(),
+                          title: news.title,
+                          summary: news.description,
+                          content: news.description, // Use description as content for now
+                          image: news.imageUrl,
+                          author: 'AP Desk',
+                          time: news.timeAgo,
+                          url: news.link,
+                          category: news.category,
+                        );
+
+                        // Open News Detail in article mode
                         Get.to(
                           () => const NewsDetailPage(),
-                          arguments: {'mode': 'article', 'item': item},
+                          arguments: {
+                            'mode': 'article',
+                            'item': newsModel,
+                          },
                         );
                       },
                       style: TextButton.styleFrom(
@@ -500,153 +410,35 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
       backgroundColor: isDarkTheme ? darkBg : lightBg,
       body: SafeArea(
         bottom: true,
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            // Top: video + info card
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  // Video container (rounded bottom)
-                  Container(
-                    width: double.infinity,
-                    height: 230,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
+        child: Obx(() {
+          if (_controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.12),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (_videoInitialized)
-                            AspectRatio(
-                              aspectRatio: _videoController.value.aspectRatio,
-                              child: VideoPlayer(_videoController),
-                            )
-                          else
-                            const Center(child: CircularProgressIndicator()),
-
-                          // gradient at bottom
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: 80,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                  colors: [
-                                    Colors.black.withOpacity(0.6),
-                                    Colors.transparent,
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // category badge bottom-left
-                          Positioned(
-                            left: 16,
-                            bottom: 12,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.35),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                widget.category,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // controls top-right
-                          Positioned(
-                            right: 12,
-                            top: 12,
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: _toggleMute,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.35),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      _isMuted
-                                          ? Icons.volume_off
-                                          : Icons.volume_up,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                GestureDetector(
-                                  onTap: _togglePlay,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.35),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      _isPlaying
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Info card
-                  _buildInfoCard(primaryRed, isDarkTheme),
-                ],
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // Info card
+              SliverToBoxAdapter(
+                child: _buildInfoCard(primaryRed, isDarkTheme),
               ),
-            ),
 
-            // Feed list
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final item = widget.newsFeed[index];
-                  return _buildFeedCard(item, index, primaryRed, isDarkTheme);
-                }, childCount: widget.newsFeed.length),
+              // Feed list
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final news = _controller.newsList[index];
+                    return _buildFeedCard(news, index, primaryRed, isDarkTheme);
+                  }, childCount: _controller.newsList.length),
+                ),
               ),
-            ),
 
-            // bottom spacing
-            SliverToBoxAdapter(child: const SizedBox(height: 30)),
-          ],
-        ),
+              // bottom spacing
+              SliverToBoxAdapter(child: const SizedBox(height: 30)),
+            ],
+          );
+        }),
       ),
     );
   }

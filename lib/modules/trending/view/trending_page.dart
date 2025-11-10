@@ -2,13 +2,16 @@ import 'package:ap_news/controllers/theme_controller.dart';
 import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
 import 'package:ap_news/modules/home/home_page.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
+import 'package:ap_news/modules/news_details/model/news_details_model.dart';
 import 'package:ap_news/modules/recent/model/recentNews_model.dart';
 import 'package:ap_news/modules/recent/view/recent_view.dart';
 import 'package:ap_news/modules/sports/view/cricket_view.dart';
 import 'package:ap_news/modules/trending/controller/trending_controller.dart';
+import 'package:ap_news/services/news_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TrendingPage extends StatefulWidget {
   const TrendingPage({super.key});
@@ -18,6 +21,7 @@ class TrendingPage extends StatefulWidget {
 }
 
 class _LearningPageState extends State<TrendingPage> {
+  final NewsService _newsService = NewsService();
   int _currentBottomNavIndex = 1; // Learning is index 1
 
   void _onBottomNavTap(int index) {
@@ -314,10 +318,23 @@ class _LearningPageState extends State<TrendingPage> {
                           const Spacer(),
                           TextButton(
                             onPressed: () {
-                              // Navigate to NewsDetailPage
+                              // Convert News to NewsModel for details page (same as homepage)
+                              final newsModel = NewsModel(
+                                id: news.articleId ?? news.title.hashCode.toString(),
+                                title: news.title,
+                                summary: news.description,
+                                content: news.description, // Use description as content for now
+                                image: news.imageUrl,
+                                author: 'AP Desk',
+                                time: news.timeAgo,
+                                url: news.link,
+                                category: news.category,
+                              );
+
+                              // Navigate to NewsDetailPage in article mode
                               Get.to(
                                 () => const NewsDetailPage(),
-                                arguments: {'mode': 'article', 'item': news},
+                                arguments: {'mode': 'article', 'item': newsModel},
                               );
                             },
                             style: TextButton.styleFrom(

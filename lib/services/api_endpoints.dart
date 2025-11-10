@@ -4,6 +4,14 @@ class ApiEndpoints {
 
   static const String liveVideos = 'youtube/live';
     static const String articleById = 'articles';
+    static const String recentVideos = 'youtube/recent-videos';
+
+    // Category endpoints
+    static const String businessCategory = 'articles/category/Business';
+    static const String bhojpuriCategory = 'articles/category/Bhojpuri';
+    static const String technologyCategory = 'articles/category/Technology';
+    static const String electionsCategory = 'articles/category/Elections';
+    static const String sportsCategory = 'articles/category/Sports';
 
 
       

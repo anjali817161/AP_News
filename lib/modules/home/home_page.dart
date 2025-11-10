@@ -41,13 +41,13 @@ class _HomePageState extends State<HomePage>
 
   final List<String> tabs = [
     'Home',
-    'Bhojpuri',
+    'Politics',
     'Business',
-   
+    'Technology',
     'Sports',
-     'Technology',
-     'Elections'
-   
+    'Entertainment',
+    'Health',
+    'Science'
   ];
 
   final List<Map<String, dynamic>> carouselItems = [
@@ -261,155 +261,14 @@ class _HomePageState extends State<HomePage>
                 controller: _tabController,
                 children: [
                   _buildHomeTab(),
-                  // For each other tab, navigate to category page with appropriate sample content
-                  CategoryNewsPage(
-                    category: 'Politics',
-                    videoUrl: videoList[0]['url'],
-                    newsFeed: [
-                      {
-                        'title':
-                            'Government Introduces New Electoral Reform Bill',
-                        'summary':
-                            'The proposal aims to modernize voting systems.',
-                        'image': 'https://picsum.photos/800/450?random=201',
-                        'time': '30m ago',
-                        'url': 'https://example.com/politics1',
-                      },
-                      {
-                        'title': 'Prime Minister Addresses National Assembly',
-                        'summary': 'A spirited speech outlining key policies.',
-                        'image': 'https://picsum.photos/800/450?random=202',
-                        'time': '2h ago',
-                        'url': 'https://example.com/politics2',
-                      },
-                    ],
-                  ),
-                  CategoryNewsPage(
-                    category: 'Business',
-                    videoUrl: videoList[1]['url'],
-                    newsFeed: [
-                      {
-                        'title': 'Stock Market Hits Record High',
-                        'summary':
-                            'Investors optimistic after inflation cools.',
-                        'image': 'https://picsum.photos/800/450?random=301',
-                        'time': '1h ago',
-                        'url': 'https://example.com/business1',
-                      },
-                      {
-                        'title': 'Tech Giants Lead Earnings Rally',
-                        'summary': 'Strong quarterly results push indexes up.',
-                        'image': 'https://picsum.photos/800/450?random=302',
-                        'time': '3h ago',
-                        'url': 'https://example.com/business2',
-                      },
-                    ],
-                  ),
-                  CategoryNewsPage(
-                    category: 'Technology',
-                    videoUrl: videoList[2]['url'],
-                    newsFeed: [
-                      {
-                        'title': 'AI Startup Unveils Next-Gen Chatbot',
-                        'summary': 'Promising to speed up developer workflows.',
-                        'image': 'https://picsum.photos/800/450?random=401',
-                        'time': '45m ago',
-                        'url': 'https://example.com/tech1',
-                      },
-                      {
-                        'title': 'Security Patch Released for Major OS',
-                        'summary': 'Patch addresses critical vulnerability.',
-                        'image': 'https://picsum.photos/800/450?random=402',
-                        'time': '3h ago',
-                        'url': 'https://example.com/tech2',
-                      },
-                    ],
-                  ),
-                  CategoryNewsPage(
-                    category: 'Sports',
-                    videoUrl: videoList[3]['url'],
-                    newsFeed: [
-                      {
-                        'title': 'Home Team Clinches Championship',
-                        'summary': 'Late penalty secures dramatic victory.',
-                        'image': 'https://picsum.photos/800/450?random=501',
-                        'time': '15m ago',
-                        'url': 'https://example.com/sports1',
-                      },
-                      {
-                        'title': 'Olympic Committee Announces New Game Lineup',
-                        'summary': 'Three new sports will debut next summer.',
-                        'image': 'https://picsum.photos/800/450?random=502',
-                        'time': '1h ago',
-                        'url': 'https://example.com/sports2',
-                      },
-                    ],
-                  ),
-                  CategoryNewsPage(
-                    category: 'Entertainment',
-                    videoUrl: videoList[4]['url'],
-                    newsFeed: [
-                      {
-                        'title': 'Blockbuster Film Crosses 1B Worldwide',
-                        'summary': 'Record-breaking box office numbers.',
-                        'image': 'https://picsum.photos/800/450?random=601',
-                        'time': '2h ago',
-                        'url': 'https://example.com/ent1',
-                      },
-                      {
-                        'title': 'Actor Announces New Project',
-                        'summary':
-                            'A drama exploring themes of loss and redemption.',
-                        'image': 'https://picsum.photos/800/450?random=602',
-                        'time': '6h ago',
-                        'url': 'https://example.com/ent2',
-                      },
-                    ],
-                  ),
-                  CategoryNewsPage(
-                    category: 'Health',
-                    videoUrl: videoList[0]['url'],
-                    newsFeed: [
-                      {
-                        'title': 'WHO Issues New Healthy Lifestyle Guidelines',
-                        'summary':
-                            'Recommendations for increased physical activity.',
-                        'image': 'https://picsum.photos/800/450?random=701',
-                        'time': '1h ago',
-                        'url': 'https://example.com/health1',
-                      },
-                      {
-                        'title': 'Breakthrough in Cancer Trials',
-                        'summary':
-                            'Early results show promising remission rates.',
-                        'image': 'https://picsum.photos/800/450?random=702',
-                        'time': '4h ago',
-                        'url': 'https://example.com/health2',
-                      },
-                    ],
-                  ),
-                  CategoryNewsPage(
-                    category: 'Science',
-                    videoUrl: videoList[1]['url'],
-                    newsFeed: [
-                      {
-                        'title': 'NASA Unveils Lunar Exploration Plan',
-                        'summary':
-                            'Artemis next phase includes crewed missions.',
-                        'image': 'https://picsum.photos/800/450?random=801',
-                        'time': '3h ago',
-                        'url': 'https://example.com/science1',
-                      },
-                      {
-                        'title': 'Fusion Energy Breakthrough',
-                        'summary':
-                            'Sustained reaction times with net positive output.',
-                        'image': 'https://picsum.photos/800/450?random=802',
-                        'time': '6h ago',
-                        'url': 'https://example.com/science2',
-                      },
-                    ],
-                  ),
+                  // For each other tab, navigate to category page
+                  CategoryNewsPage(category: 'Politics'),
+                  CategoryNewsPage(category: 'Business'),
+                  CategoryNewsPage(category: 'Technology'),
+                  CategoryNewsPage(category: 'Sports'),
+                  CategoryNewsPage(category: 'Entertainment'),
+                  CategoryNewsPage(category: 'Health'),
+                  CategoryNewsPage(category: 'Science'),
                 ],
               ),
             ),
@@ -547,7 +406,7 @@ class _HomePageState extends State<HomePage>
           const SizedBox(height: 25),
           const WeatherCard(),
           const SizedBox(height: 25),
-          _buildMoreVideos(localizations),
+          _buildRecentVideos(localizations),
           const SizedBox(height: 25),
           _buildNewsCards(),
           const SizedBox(height: 20),
@@ -557,6 +416,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildCarousel() {
+    final localizations = AppLocalizations.of(context);
     return Obx(() {
       final liveVideos = _homeController.liveVideos;
       final isLoading = _homeController.isLoadingLiveVideos.value;
@@ -697,10 +557,10 @@ class _HomePageState extends State<HomePage>
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    image: DecorationImage(
-                      image: NetworkImage(video.image ?? ''),
-                      fit: BoxFit.cover,
-                    ),
+                        image: DecorationImage(
+                          image: NetworkImage(video.image ?? ''),
+                          fit: BoxFit.cover,
+                        ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.3),
@@ -739,9 +599,9 @@ class _HomePageState extends State<HomePage>
                                 color: Colors.red,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Text(
-                                'LIVE NOW',
-                                style: TextStyle(
+                              child: Text(
+                                localizations.live_now,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -847,7 +707,7 @@ class _HomePageState extends State<HomePage>
     });
   }
 
-  Widget _buildMoreVideos(AppLocalizations localizations) {
+  Widget _buildRecentVideos(AppLocalizations localizations) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -859,7 +719,7 @@ class _HomePageState extends State<HomePage>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${localizations.more_videos}',
+                  'Recent Videos',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -888,148 +748,280 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            height: 220,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: videoList.length,
-              itemBuilder: (context, index) {
-                final video = videoList[index];
+          Obx(() {
+            final recentVideos = _homeController.recentVideos;
+            final isLoading = _homeController.isLoadingRecentVideos.value;
+            final error = _homeController.recentVideosError.value;
 
-                // Prepare a map with 'videoUrl' for NewsDetailController compatibility
-                final navItem = {
-                  'title': video['title'],
-                  'summary': video['summary'] ?? '',
-                  'image': video['image'],
-                  'time': video['time'] ?? '',
-                  'url': video['url'],
-                  'videoUrl':
-                      video['url'], // important: ensures controller sees videoUrl
-                };
+            if (isLoading) {
+              return const SizedBox(
+                height: 220,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
 
-                return GestureDetector(
-                  onTap: () {
-                    print('[DEBUG] Video tapped: ${video['title']}');
-                    print('[DEBUG] Video URL: ${video['url']}');
-                    print('[DEBUG] NavItem: $navItem');
-                    // Navigate to details page in video mode and play in-app
-                    Get.to(
-                      () => const NewsDetailPage(),
-                      arguments: {'mode': 'video', 'item': navItem},
-                    );
-                  },
-                  child: Container(
-                    width: 300,
-                    margin: EdgeInsets.only(
-                      right: index == videoList.length - 1 ? 0 : 15,
-                      left: index == 0 ? 8 : 0,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      image: DecorationImage(
-                        image: NetworkImage(video['image']),
-                        fit: BoxFit.cover,
+            if (error.isNotEmpty) {
+              return SizedBox(
+                height: 220,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: _isDarkTheme ? Colors.grey[800] : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.15),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.8),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
+                          Icon(
+                            Icons.video_library_outlined,
+                            size: 48,
+                            color: Colors.grey[500],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Recent videos are currently unavailable',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: _isDarkTheme ? Colors.white : Colors.black87,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              'NEW',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            video['title'],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
+                            'Please check back later or try refreshing',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  // Navigate to in-app news details page and play video
-                                  Get.to(
-                                    () => const NewsDetailPage(),
-                                    arguments: {
-                                      'mode': 'video',
-                                      'item': navItem,
-                                    },
-                                  );
-                                },
-                                icon: const Icon(Icons.play_arrow, size: 18),
-                                label: const Text('Play Now'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red[800],
-                                  foregroundColor: Colors.white,
-                                  minimumSize: const Size(0, 40),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(13),
-                                  ),
-                                  elevation: 3,
-                                ),
-                              ),
-                            ],
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
+                ),
+              );
+            }
+
+            if (recentVideos.isEmpty) {
+              return SizedBox(
+                height: 220,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: _isDarkTheme ? Colors.grey[800] : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.15),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.video_library_outlined,
+                            size: 48,
+                            color: Colors.grey[500],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No recent videos available right now',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: _isDarkTheme ? Colors.white : Colors.black87,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Check back later for recent content',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return SizedBox(
+              height: 220,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: recentVideos.length,
+                itemBuilder: (context, index) {
+                  final video = recentVideos[index];
+
+                  return GestureDetector(
+                    onTap: () {
+                      // Convert RecentVideo to NewsModel for details page
+                      final newsModel = NewsModel(
+                        id: video.id,
+                        title: video.title,
+                        summary: video.summary,
+                        content: video.summary,
+                        image: video.image,
+                        author: video.channelTitle ?? 'AP Desk',
+                        time: video.time ?? 'Recent',
+                        url: video.url,
+                        category: video.category ?? 'Recent',
+                        videoUrl: video.url,
+                      );
+
+                      // Navigate to video mode
+                      Get.to(
+                        () => const NewsDetailPage(),
+                        arguments: {'mode': 'video', 'item': newsModel},
+                      );
+                    },
+                    child: Container(
+                      width: 300,
+                      margin: EdgeInsets.only(
+                        right: index == recentVideos.length - 1 ? 0 : 15,
+                        left: index == 0 ? 8 : 0,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        image: DecorationImage(
+                          image: NetworkImage(video.image ?? ''),
+                          fit: BoxFit.cover,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.8),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                'RECENT',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              video.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    // Convert RecentVideo to NewsModel for details page
+                                    final newsModel = NewsModel(
+                                      id: video.id,
+                                      title: video.title,
+                                      summary: video.summary,
+                                      content: video.summary,
+                                      image: video.image,
+                                      author: 'AP Desk',
+                                      time: video.time ?? 'Recent',
+                                      url: video.url,
+                                      category: video.category ?? 'Recent',
+                                      videoUrl: video.url,
+                                    );
+
+                                    // Navigate to video mode
+                                    Get.to(
+                                      () => const NewsDetailPage(),
+                                      arguments: {'mode': 'video', 'item': newsModel},
+                                    );
+                                  },
+                                  icon: const Icon(Icons.play_arrow, size: 18),
+                                  label: const Text('Play Now'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red[800],
+                                    foregroundColor: Colors.white,
+                                    minimumSize: const Size(0, 40),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(13),
+                                    ),
+                                    elevation: 3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
         ],
       ),
     );

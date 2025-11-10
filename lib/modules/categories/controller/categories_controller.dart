@@ -12,14 +12,14 @@ class CategoriesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchNewsByCategory('Home');
+    // Don't fetch on init, wait for category to be set
   }
 
   Future<void> fetchNewsByCategory(String category) async {
     try {
       isLoading.value = true;
       currentCategory.value = category;
-      final news = await _newsService.fetchLatestNews();
+      final news = await _newsService.fetchNewsByCategory(category);
       newsList.assignAll(news);
     } catch (e) {
       Get.snackbar('Error', 'Failed to load news: $e');
