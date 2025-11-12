@@ -48,7 +48,7 @@ class NewsService {
             timeAgo: _formatTimeAgo(item['pubDate']),
             articleId: item['article_id'],
             link: item['link'],
-            pubDate: item['pubDate'],
+            pubDate: item['pubDate'], content: item['content'] ?? 'No content ',
           );
         }).toList();
       } else {

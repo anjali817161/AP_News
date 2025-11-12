@@ -216,187 +216,159 @@ class _CategoryNewsPageState extends State<CategoryNewsPage> {
     );
   }
 
-  Widget _buildFeedCard(
-    News news,
-    int index,
-    Color primaryRed,
-    bool isDarkTheme,
-  ) {
-    final isSaved = news.isSaved;
+Widget _buildFeedCard(
+  News news,
+  int index,
+  Color primaryRed,
+  bool isDarkTheme,
+) {
+  final isSaved = news.isSaved;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: isDarkTheme ? Colors.grey[850] : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+  // ✅ Safely handle image source
+  final String imageToShow = (news.imageUrl.isNotEmpty)
+      ? news.imageUrl
+      : 'assets/images/Ap-news_logo.png'; // fallback image
+
+  return Container(
+    margin: const EdgeInsets.only(bottom: 14),
+    decoration: BoxDecoration(
+      color: isDarkTheme ? Colors.grey[850] : Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.04),
+          blurRadius: 8,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ✅ Image section with fallback
+        ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // image
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            child: news.imageUrl.isNotEmpty
+          child: imageToShow.startsWith('http')
               ? Image.network(
-                  news.imageUrl,
+                  imageToShow,
                   width: double.infinity,
                   height: 160,
                   fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) {
-                    return Container(
+                  errorBuilder: (context, error, stackTrace) {
+                    // fallback on network error too
+                    return Image.asset(
+                      'assets/images/Ap-news_logo.png',
                       width: double.infinity,
                       height: 160,
-                      color: Colors.grey[200],
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.broken_image,
-                        color: Colors.grey[400],
-                        size: 48,
-                      ),
+                      fit: BoxFit.contain,
                     );
                   },
                 )
-              : Container(
+              : Image.asset(
+                  imageToShow,
                   width: double.infinity,
                   height: 160,
-                  color: Colors.grey[200],
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.image_not_supported,
-                    color: Colors.grey[400],
-                    size: 48,
-                  ),
+                  fit: BoxFit.contain,
                 ),
-          ),
+        ),
 
-          // content
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  news.title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isDarkTheme ? Colors.white : Colors.black87,
-                  ),
+        // ✅ Content section
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                news.title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDarkTheme ? Colors.white : Colors.black87,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  news.description,
-                  style: TextStyle(
-                    color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
-                    fontSize: 14,
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                news.description,
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+                  fontSize: 14,
                 ),
-                const SizedBox(height: 10),
+              ),
+              const SizedBox(height: 10),
 
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 14,
-                      color: isDarkTheme ? Colors.grey[400] : Colors.grey[500],
+              Row(
+                children: [
+                  Icon(
+                    Icons.access_time,
+                    size: 14,
+                    color: isDarkTheme ? Colors.grey[400] : Colors.grey[500],
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    news.timeAgo,
+                    style: TextStyle(
+                      color: isDarkTheme ? Colors.grey[400] : Colors.grey[600],
+                      fontSize: 12,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      news.timeAgo,
+                  ),
+                  const Spacer(),
+
+                  // ✅ Read More button
+                  TextButton(
+                    onPressed: () {
+                      final newsModel = NewsModel(
+                        id: news.articleId ?? news.title.hashCode.toString(),
+                        title: news.title,
+                        summary: news.description,
+                        content: news.content,
+                        image: news.imageUrl.isNotEmpty
+                            ? news.imageUrl
+                            : 'assets/images/Ap-news_logo.png', // fallback here too
+                        author: 'AP Desk',
+                        time: news.timeAgo,
+                        url: news.link,
+                        category: news.category,
+                        videoUrl: null,
+                      );
+
+                      Get.to(
+                        () => const NewsDetailPage(),
+                        arguments: {
+                          'mode': 'article',
+                          'item': newsModel,
+                        },
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      backgroundColor:
+                          isDarkTheme ? Colors.grey[700] : Colors.red[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    child: Text(
+                      'Read More',
                       style: TextStyle(
-                        color: isDarkTheme
-                            ? Colors.grey[400]
-                            : Colors.grey[600],
+                        color: isDarkTheme ? Colors.white : Colors.red[800],
                         fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Spacer(),
-
-                    // Save (bookmark) icon
-                    IconButton(
-                      onPressed: () => _controller.toggleSave(news),
-                      icon: Icon(
-                        isSaved ? Icons.bookmark : Icons.bookmark_outline,
-                      ),
-                      color: isSaved
-                          ? primaryRed
-                          : (isDarkTheme ? Colors.grey[400] : Colors.grey[700]),
-                      tooltip: isSaved ? 'Saved' : 'Save',
-                    ),
-
-                    // Share icon
-                    IconButton(
-                      onPressed: () => _showShareOptions(news),
-                      icon: const Icon(Icons.share_outlined),
-                      color: isDarkTheme ? Colors.grey[400] : Colors.grey[700],
-                      tooltip: 'Share',
-                    ),
-
-                    // Read more button (kept lightweight)
-                    TextButton(
-                      onPressed: () {
-                        // Convert News to NewsModel for details page
-                        final newsModel = NewsModel(
-                          id: news.articleId ?? news.title.hashCode.toString(),
-                          title: news.title,
-                          summary: news.description,
-                          content: news.description, // Use description as content for now
-                          image: news.imageUrl,
-                          author: 'AP Desk',
-                          time: news.timeAgo,
-                          url: news.link,
-                          category: news.category,
-                        );
-
-                        // Open News Detail in article mode
-                        Get.to(
-                          () => const NewsDetailPage(),
-                          arguments: {
-                            'mode': 'article',
-                            'item': newsModel,
-                          },
-                        );
-                      },
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        backgroundColor: isDarkTheme
-                            ? Colors.grey[700]
-                            : Colors.red[50],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      child: Text(
-                        'Read More',
-                        style: TextStyle(
-                          color: isDarkTheme ? Colors.white : Colors.red[800],
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

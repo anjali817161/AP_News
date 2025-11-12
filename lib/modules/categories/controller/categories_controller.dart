@@ -12,7 +12,6 @@ class CategoriesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Don't fetch on init, wait for category to be set
   }
 
   Future<void> fetchNewsByCategory(String category) async {

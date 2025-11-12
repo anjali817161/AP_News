@@ -1179,52 +1179,55 @@ class _HomePageState extends State<HomePage>
                                       onPressed: () =>
                                           _homeController.toggleSave(news),
                                     ),
-                                    TextButton(
-                                      onPressed: () {
-                                        // Convert News to NewsModel for details page
-                                        final newsModel = NewsModel(
-                                          id:
-                                              news.articleId ??
-                                              news.title.hashCode.toString(),
-                                          title: news.title,
-                                          summary: news.description,
-                                          content: news
-                                              .description, // Use description as content for now
-                                          image: news.imageUrl,
-                                          author: 'AP Desk',
-                                          time: news.timeAgo,
-                                          url: news.link,
-                                          category: news.category,
-                                        );
+                                   TextButton(
+  onPressed: () {
+    // Convert News to NewsModel for details page
+    final newsModel = NewsModel(
+      id: news.articleId ?? news.title.hashCode.toString(),
+      title: news.title,
+      summary: news.description,
+      content: news.content?.isNotEmpty == true
+          ? news.content
+          : news.description, // Prefer content, fallback to description
+      image: news.imageUrl.isNotEmpty
+          ? news.imageUrl
+          : null, // Use featuredImage URL if available
+      author: 'AP Desk',
+      time: news.timeAgo,
+      url: news.link,
+      category: news.category,
+      videoUrl: null, // Optionally handle video if you have one
+    );
 
-                                        // Open News Detail in article mode
-                                        Get.to(
-                                          () => const NewsDetailPage(),
-                                          arguments: {
-                                            'mode': 'article',
-                                            'item': newsModel,
-                                          },
-                                        );
-                                      },
-                                      style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        backgroundColor: Colors.red[50],
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'Read More',
-                                        style: TextStyle(
-                                          color: Colors.red[800],
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
+    // Open News Detail in article mode
+    Get.to(
+      () => const NewsDetailPage(),
+      arguments: {
+        'mode': 'article',
+        'item': newsModel,
+      },
+    );
+  },
+  style: TextButton.styleFrom(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 8,
+      vertical: 4,
+    ),
+    backgroundColor: Colors.red[50],
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(6),
+    ),
+  ),
+  child: Text(
+    'Read More',
+    style: TextStyle(
+      color: Colors.red[800],
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
                                   ],
                                 ),
                               ],

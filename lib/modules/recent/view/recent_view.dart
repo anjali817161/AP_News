@@ -1,14 +1,15 @@
 import 'package:ap_news/controllers/theme_controller.dart';
 import 'package:ap_news/modules/bottom_navbar/bottom_navbar.dart';
 import 'package:ap_news/modules/home/home_page.dart';
+import 'package:ap_news/modules/news_details/model/news_details_model.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
-import 'package:ap_news/modules/recent/controller/recent_controller.dart';
-import 'package:ap_news/modules/recent/model/recentNews_model.dart';
 import 'package:ap_news/modules/sports/view/cricket_view.dart';
+import 'package:ap_news/modules/trending/controller/trending_controller.dart';
 import 'package:ap_news/modules/trending/view/trending_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import '../../../modules/recent/model/recentNews_model.dart'; // your News model
 
 class RecentView extends StatefulWidget {
   const RecentView({super.key});
@@ -18,34 +19,55 @@ class RecentView extends StatefulWidget {
 }
 
 class _RecentPageState extends State<RecentView> {
-  int _currentBottomNavIndex = 3; // Read is index 3
+  final ScrollController _scrollController = ScrollController();
+  late TrendingController controller;
+  int _currentBottomNavIndex = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(TrendingController());
+
+    // ✅ Detect scroll end to load more
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !controller.isLoadingMore.value &&
+          controller.hasMoreData.value) {
+        controller.loadMoreArticles();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _onBottomNavTap(int index) {
     setState(() {
       _currentBottomNavIndex = index;
     });
-    // Handle navigation based on index
     switch (index) {
-      case 0: // Home
+      case 0:
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
         break;
-      case 1: // Learning
+      case 1:
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const TrendingPage()),
         );
         break;
-      case 2: // Search
-        // Show search dialog or navigate to search page
+      case 2:
         _showSearchDialog();
         break;
-      case 3: // Read
-        // Already on read page
+      case 3:
         break;
-      case 4: // Sports
+      case 4:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CricketPage()),
@@ -61,106 +83,14 @@ class _RecentPageState extends State<RecentView> {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
-          'Search Flight',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
-          ),
+          'Search News',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchField('From', Icons.flight_takeoff),
-            const SizedBox(height: 10),
-            _buildSearchField('To', Icons.flight_land),
-            const SizedBox(height: 15),
-            _buildFilterSection(),
-          ],
-        ),
+        content: const Text('Search functionality coming soon.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[800],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
-            child: const Text('Search'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchField(String hint, IconData icon) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: hint,
-          prefixIcon: Icon(icon, color: Colors.red),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 12,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Data Filter',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        const SizedBox(height: 8),
-        _buildFilterOption('Default', true),
-        _buildFilterOption('Status: True', false),
-        _buildFilterOption('Error: False', false),
-      ],
-    );
-  }
-
-  Widget _buildFilterOption(String text, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.red[50] : Colors.grey[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isSelected ? Colors.red! : Colors.grey[300]!),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isSelected
-                ? Icons.radio_button_checked
-                : Icons.radio_button_unchecked,
-            color: isSelected ? Colors.red : Colors.grey,
-            size: 16,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              color: isSelected ? Colors.red : Colors.grey[700],
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
+            child: const Text('OK', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -169,7 +99,6 @@ class _RecentPageState extends State<RecentView> {
 
   @override
   Widget build(BuildContext context) {
-    final RecentController controller = Get.put(RecentController());
     final themeController = Provider.of<ThemeController>(context);
     final isDarkTheme = themeController.isDarkMode;
 
@@ -184,17 +113,47 @@ class _RecentPageState extends State<RecentView> {
         elevation: 0,
       ),
       body: Obx(() {
-        if (controller.newsList.isEmpty) {
+        if (controller.isLoading.value && controller.newsList.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: controller.newsList.length,
-          itemBuilder: (context, index) {
-            final news = controller.newsList[index];
-            return _buildNewsCard(news, controller);
-          },
+        if (controller.newsList.isEmpty) {
+          return const Center(child: Text("No articles available."));
+        }
+
+        return RefreshIndicator(
+          onRefresh: controller.fetchArticles,
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(16),
+            itemCount: controller.newsList.length + 1, // +1 for loader
+            itemBuilder: (context, index) {
+              if (index < controller.newsList.length) {
+                final news = controller.newsList[index];
+                return _buildNewsCard(news, controller);
+              } else {
+                // ✅ Bottom Loader
+                if (controller.isLoadingMore.value) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                } else if (!controller.hasMoreData.value) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: Text(
+                        "No more articles",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              }
+            },
+          ),
         );
       }),
       bottomNavigationBar: CustomBottomNavBar(
@@ -204,17 +163,14 @@ class _RecentPageState extends State<RecentView> {
     );
   }
 
-  Widget _buildNewsCard(News news, RecentController controller) {
-    final themeController = Provider.of<ThemeController>(
-      context,
-      listen: false,
-    );
+  Widget _buildNewsCard(News news, TrendingController controller) {
+    final themeController = Provider.of<ThemeController>(context, listen: false);
     final isDarkTheme = themeController.isDarkMode;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: isDarkTheme ? Colors.grey[800] : Colors.white,
+        color: isDarkTheme ? Colors.grey[850] : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -234,12 +190,17 @@ class _RecentPageState extends State<RecentView> {
                   topLeft: Radius.circular(16),
                   bottomLeft: Radius.circular(16),
                 ),
-                child: Image.network(
-                  news.imageUrl,
-                  width: 120,
-                  height: 120,
-                  fit: BoxFit.cover,
-                ),
+                child: (news.imageUrl.isNotEmpty && news.imageUrl != 'null')
+                    ? Image.network(
+                        news.imageUrl,
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _fallbackLogo();
+                        },
+                      )
+                    : _fallbackLogo(),
               ),
               Expanded(
                 child: Padding(
@@ -248,10 +209,7 @@ class _RecentPageState extends State<RecentView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           color: Colors.red[50],
                           borderRadius: BorderRadius.circular(8),
@@ -282,9 +240,7 @@ class _RecentPageState extends State<RecentView> {
                         news.description,
                         style: TextStyle(
                           fontSize: 14,
-                          color: isDarkTheme
-                              ? Colors.grey[300]
-                              : Colors.grey[700],
+                          color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -292,51 +248,62 @@ class _RecentPageState extends State<RecentView> {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          Icon(
-                            Icons.access_time,
-                            size: 14,
-                            color: isDarkTheme
-                                ? Colors.grey[300]
-                                : Colors.grey[500],
-                          ),
+                          Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
                           const SizedBox(width: 4),
                           Text(
                             news.timeAgo,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDarkTheme
-                                  ? Colors.grey[300]
-                                  : Colors.grey[500],
-                            ),
+                            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                           ),
                           const Spacer(),
                           TextButton(
-                            onPressed: () {
-                              // Navigate to NewsDetailPage
-                              Get.to(
-                                () => const NewsDetailPage(),
-                                arguments: {'mode': 'article', 'item': news},
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              backgroundColor: Colors.red[50],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                            child: Text(
-                              'Read More',
-                              style: TextStyle(
-                                color: Colors.red[800],
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+  onPressed: () {
+    // Convert News to NewsModel for details page
+    final newsModel = NewsModel(
+      id: news.articleId ?? news.title.hashCode.toString(),
+      title: news.title,
+      summary: news.description,
+      content: news.content?.isNotEmpty == true
+          ? news.content
+          : news.description, // Prefer content, fallback to description
+      image: news.imageUrl.isNotEmpty
+          ? news.imageUrl
+          : null, // Use featuredImage URL if available
+      author: 'AP Desk',
+      time: news.timeAgo,
+      url: news.link,
+      category: news.category,
+      videoUrl: null, // Optionally handle video if you have one
+    );
+
+    // Open News Detail in article mode
+    Get.to(
+      () => const NewsDetailPage(),
+      arguments: {
+        'mode': 'article',
+        'item': newsModel,
+      },
+    );
+  },
+  style: TextButton.styleFrom(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 8,
+      vertical: 4,
+    ),
+    backgroundColor: Colors.red[50],
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(6),
+    ),
+  ),
+  child: Text(
+    'Read More',
+    style: TextStyle(
+      color: Colors.red[800],
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
                         ],
                       ),
                     ],
@@ -359,13 +326,28 @@ class _RecentPageState extends State<RecentView> {
                   onPressed: () => controller.toggleSave(news),
                 ),
                 IconButton(
-                  icon: Icon(Icons.share, color: Colors.white, size: 20),
+                  icon: const Icon(Icons.share, color: Colors.white, size: 20),
                   onPressed: () => controller.shareNews(news),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _fallbackLogo() {
+    return Container(
+      width: 120,
+      height: 120,
+      color: Colors.grey[200],
+      alignment: Alignment.center,
+      child: Image.asset(
+        'assets/images/Ap-news_logo.png',
+        width: 60,
+        height: 60,
+        fit: BoxFit.contain,
       ),
     );
   }

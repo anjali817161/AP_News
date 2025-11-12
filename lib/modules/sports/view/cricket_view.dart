@@ -2,6 +2,7 @@
 import 'package:ap_news/modules/sports/controller/cricket_controller.dart';
 import 'package:ap_news/controllers/theme_controller.dart';
 import 'package:ap_news/modules/news_details/view/news_details.dart';
+import 'package:ap_news/modules/sports/view/Cicketdetail.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
@@ -363,34 +364,31 @@ class CricketPage extends StatelessWidget {
                   tooltip: 'Share',
                 ),
                 // View Details
-                TextButton(
-                  onPressed: () {
-                    if (url.isNotEmpty) {
-                      Get.to(
-                        () => const NewsDetailPage(),
-                        arguments: {'mode': 'cricket', 'item': item},
-                      );
-                    }
-                  },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    backgroundColor: Colors.red[50],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  child: Text(
-                    'View Details',
-                    style: TextStyle(
-                      color: Colors.red[800],
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+               // Inside Row(children: [...])
+// TextButton(
+//   onPressed: () {
+//     final query = '$team1 vs $team2';
+//     final matchUrl = 'https://www.google.com/search?q=${Uri.encodeComponent(query)}';
+//   //   Get.to(() => CricketDetailsPage(
+//   //     matchUrl: matchUrl,
+//   //     title: query,
+//   //   ));
+//   // },
+//   style: TextButton.styleFrom(
+//     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+//     backgroundColor: Colors.red[50],
+//     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+//   ),
+//   child: Text(
+//     'View Details',
+//     style: TextStyle(
+//       color: Colors.red[800],
+//       fontSize: 12,
+//       fontWeight: FontWeight.bold,
+//     ),
+//   ),
+// ),
+
               ],
             ),
           ],

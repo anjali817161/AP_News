@@ -8,7 +8,7 @@ class RecentController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadDummyNews();
+   loadDummyNews();
   }
 
   void loadDummyNews() {
@@ -19,7 +19,7 @@ class RecentController extends GetxController {
             'Exploring the ongoing debate between digital reading devices and traditional print books.',
         imageUrl: 'https://picsum.photos/300/200?random=401',
         category: 'Literature',
-        timeAgo: '1h ago',
+        timeAgo: '1h ago', content: 'hgfdfjhf',
       ),
       News(
         title: 'Bestselling Books of 2024',
@@ -27,7 +27,7 @@ class RecentController extends GetxController {
             'A comprehensive look at the most popular books that captured readers\' attention this year.',
         imageUrl: 'https://picsum.photos/300/200?random=402',
         category: 'Bestsellers',
-        timeAgo: '3h ago',
+        timeAgo: '3h ago', content: 'wqdxqwhfdg kdgl  ',
       ),
       News(
         title: 'Audiobooks Revolution',
@@ -35,7 +35,7 @@ class RecentController extends GetxController {
             'How audiobooks are changing the way people consume literature and stories.',
         imageUrl: 'https://picsum.photos/300/200?random=403',
         category: 'Technology',
-        timeAgo: '5h ago',
+        timeAgo: '5h ago', content: 'wqgiqgfiqofio',
       ),
       News(
         title: 'Classic Literature Adaptations',
@@ -43,7 +43,7 @@ class RecentController extends GetxController {
             'Modern film and TV adaptations of timeless literary works.',
         imageUrl: 'https://picsum.photos/300/200?random=404',
         category: 'Adaptations',
-        timeAgo: '7h ago',
+        timeAgo: '7h ago', content: 'kdjwqidqwfioqhiofhqoihfoih',
       ),
     ]);
   }

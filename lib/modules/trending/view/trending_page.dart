@@ -212,41 +212,46 @@ class _LearningPageState extends State<TrendingPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                ),
-                child: news.imageUrl.isNotEmpty && news.imageUrl != 'null'
-                  ? Image.network(
-                      news.imageUrl,
-                      width: 120,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 120,
-                          height: 120,
-                          color: Colors.grey[300],
-                          child: Icon(
-                            Icons.image_not_supported,
-                            color: Colors.grey[600],
-                            size: 40,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      width: 120,
-                      height: 120,
-                      color: Colors.grey[300],
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: Colors.grey[600],
-                        size: 40,
-                      ),
-                    ),
+             ClipRRect(
+  borderRadius: const BorderRadius.only(
+    topLeft: Radius.circular(16),
+    bottomLeft: Radius.circular(16),
+  ),
+  child: (news.imageUrl.isNotEmpty && news.imageUrl != 'null')
+      ? Image.network(
+          news.imageUrl,
+          width: 120,
+          height: 120,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: 120,
+              height: 120,
+              color: Colors.grey[200],
+              alignment: Alignment.center,
+              child: Image.asset(
+                'assets/images/Ap-news_logo.png', // ✅ fallback logo
+                width: 60,
+                height: 60,
+                fit: BoxFit.contain,
               ),
+            );
+          },
+        )
+      : Container(
+          width: 120,
+          height: 120,
+          color: Colors.grey[200],
+          alignment: Alignment.center,
+          child: Image.asset(
+            'assets/images/Ap-news_logo.png', // ✅ fallback logo
+            width: 60,
+            height: 60,
+            fit: BoxFit.contain,
+          ),
+        ),
+),
+
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -316,46 +321,56 @@ class _LearningPageState extends State<TrendingPage> {
                             ),
                           ),
                           const Spacer(),
-                          // TextButton(
-                          //   onPressed: () {
-                          //     // Convert News to NewsModel for details page (same as homepage)
-                          //     final newsModel = NewsModel(
-                          //       id: news.articleId ?? news.title.hashCode.toString(),
-                          //       title: news.title,
-                          //       summary: news.description,
-                          //       content: news.description, // Use description as content for now
-                          //       image: news.imageUrl,
-                          //       author: 'AP Desk',
-                          //       time: news.timeAgo,
-                          //       url: news.link,
-                          //       category: news.category,
-                          //     );
+                                                   TextButton(
+  onPressed: () {
+    // Convert News to NewsModel for details page
+    final newsModel = NewsModel(
+      id: news.articleId ?? news.title.hashCode.toString(),
+      title: news.title,
+      summary: news.description,
+      content: news.content?.isNotEmpty == true
+          ? news.content
+          : news.description, // Prefer content, fallback to description
+      image: news.imageUrl.isNotEmpty
+          ? news.imageUrl
+          : null, // Use featuredImage URL if available
+      author: 'AP Desk',
+      time: news.timeAgo,
+      url: news.link,
+      category: news.category,
+      videoUrl: null, // Optionally handle video if you have one
+    );
 
-                          //     // Navigate to NewsDetailPage in article mode
-                          //     Get.to(
-                          //       () => const NewsDetailPage(),
-                          //       arguments: {'mode': 'article', 'item': newsModel},
-                          //     );
-                          //   },
-                          //   style: TextButton.styleFrom(
-                          //     padding: const EdgeInsets.symmetric(
-                          //       horizontal: 8,
-                          //       vertical: 4,
-                          //     ),
-                          //     backgroundColor: Colors.red[50],
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(6),
-                          //     ),
-                          //   ),
-                          //   child: Text(
-                          //     'Read More',
-                          //     style: TextStyle(
-                          //       color: Colors.red[800],
-                          //       fontSize: 12,
-                          //       fontWeight: FontWeight.bold,
-                          //     ),
-                          //   ),
-                          // ),
+    // Open News Detail in article mode
+    Get.to(
+      () => const NewsDetailPage(),
+      arguments: {
+        'mode': 'article',
+        'item': newsModel,
+      },
+    );
+  },
+  style: TextButton.styleFrom(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 8,
+      vertical: 4,
+    ),
+    backgroundColor: Colors.red[50],
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(6),
+    ),
+  ),
+  child: Text(
+    'Read More',
+    style: TextStyle(
+      color: Colors.red[800],
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
+
                         ],
                       ),
                     ],
